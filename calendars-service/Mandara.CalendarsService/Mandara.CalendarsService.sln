@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mandara.CalendarsService", "Mandara.CalendarsService.csproj", "{C30A6C7A-E4A1-48C8-9A48-436E1E151950}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C30A6C7A-E4A1-48C8-9A48-436E1E151950}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C30A6C7A-E4A1-48C8-9A48-436E1E151950}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C30A6C7A-E4A1-48C8-9A48-436E1E151950}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C30A6C7A-E4A1-48C8-9A48-436E1E151950}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E5489998-1E9E-4E52-8367-4469D22C729D}
+	EndGlobalSection
+EndGlobal

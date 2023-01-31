@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+
+option csharp_namespace = "Mandara.CalendarsService.GrpcDefinitions";
+
+package portfolios;
+
+//Service for getting portfolios information
+service PortfolioService {
+	// Get All Portfolios.
+	rpc GetAllPortfolios (AllPortfoliosRequestGrpcMessage)
+		returns (AllPortfoliosResponseGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/GetAllPortfolios"
+		};
+	}
+
+	rpc GetPortfolio (PortfolioRequestGrpcMessage)
+		returns (PortfolioResponseGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/GetAllPortfolio/{portfolio_id}"
+		};
+	}
+}
+
+message AllPortfoliosRequestGrpcMessage {
+
+}
+
+message AllPortfoliosResponseGrpcMessage {
+	repeated PortfolioGrpc portfolios = 1;
+}
+
+message PortfolioRequestGrpcMessage {
+	int32 portfolio_id = 1;
+}
+
+message PortfolioResponseGrpcMessage {
+  oneof portfolio {
+    google.protobuf.NullValue null = 1;
+    PortfolioGrpc portfolio_data = 2;
+  }
+}
+
+message PortfolioGrpc {
+	int32 portfolio_id = 1;
+	string name = 2;
+	int32 parent_portfolio_id = 3;
+	bool is_archived = 4;
+	bool is_error_book = 5;
+}

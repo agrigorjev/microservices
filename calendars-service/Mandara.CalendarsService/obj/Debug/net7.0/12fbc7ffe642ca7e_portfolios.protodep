@@ -1,0 +1,6 @@
+obj\Debug\net7.0\Protos/Portfolios.cs \
+obj\Debug\net7.0\Protos/PortfoliosGrpc.cs: C:/Users/barch/.nuget/packages/grpc.tools/2.51.0/build/native/include/google/protobuf/struct.proto\
+ google/api/http.proto\
+ C:/Users/barch/.nuget/packages/grpc.tools/2.51.0/build/native/include/google/protobuf/descriptor.proto\
+ google/api/annotations.proto\
+ Protos/portfolios.proto

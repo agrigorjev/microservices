@@ -1,0 +1,70 @@
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+pr:
+  branches:
+    include:
+      - main
+      - develop
+
+resources:
+- repo: self
+
+variables:
+  Agent.Source.Git.ShallowFetchDepth: 0
+  dockerRegistryServiceConnection: 'mandaracapital-acr'
+  imageRepository: 'DataService'
+  containerRegistry: 'mandara.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/Mandara.DataService/Dockerfile'
+  tag: '$(GitVersion.SemVer)'
+
+  vmImageName: 'ubuntu-22.04'
+
+stages:
+- stage: Build
+  displayName: Build and push stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '7.x'
+    # Need to add GitTools extension to Azure DevOps in order
+    # for the two tasks below to work
+    # https://marketplace.visualstudio.com/items?itemName=gittools.gittools
+    - task: gitversion/setup@0
+      displayName: Install GitVersion
+      inputs:
+        versionSpec: '5.x'
+    - task: gitversion/execute@0
+      displayName: 'Execute GitVersion'
+      inputs:
+        updateAssemblyInfo: false
+    - task: DockerInstaller@0
+      inputs:
+        dockerVersion: '17.09.0-ce'
+    - task: NuGetAuthenticate@1
+    - task: Docker@2
+      displayName: Build a docker image
+      inputs:
+        command: build
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        buildContext: $(Build.Repository.LocalPath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+    - task: Docker@2
+      displayName: Push the image to container registry
+      inputs:
+        command: push
+        containerRegistry: $(dockerRegistryServiceConnection)
+        repository: $(imageRepository)
+        tags: |
+          $(tag)
