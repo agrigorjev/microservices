@@ -4,7 +4,9 @@ namespace Mandara.CalendarsService.Data;
 
 public class MandaraEntities : DbContext
 {
-    public virtual DbSet<Portfolio> Portfolios { get; set; }
+    public virtual DbSet<StockCalendar> StockCalendars { get; set; }
+    public virtual DbSet<CalendarExpiryDate> CalendarExpiryDates { get; set; }
+    public virtual DbSet<CalendarHoliday> CalendarHolidays { get; set; }
 
     public MandaraEntities(DbContextOptions<MandaraEntities> options) : base(options)
     {
@@ -13,9 +15,24 @@ public class MandaraEntities : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Portfolio>()
-            .HasMany(e => e.Portfolios)
-            .WithOne(e => e.ParentPortfolio)
-            .HasForeignKey(e => e.ParentId);
+        modelBuilder.Entity<CalendarExpiryDate>()
+            .HasKey(t => new { t.CalendarId, t.FuturesDate });
+
+        modelBuilder.Entity<CalendarHoliday>().HasKey(t => new { t.CalendarId, t.HolidayDate });
+
+
+        modelBuilder.Entity<StockCalendar>()
+            .HasMany(e => e.FuturesExpiries)
+            .WithOne(e => e.StockCalendar)
+            .IsRequired()
+            .HasForeignKey(e => e.CalendarId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<StockCalendar>()
+            .HasMany(e => e.Holidays)
+            .WithOne(e => e.StockCalendar)
+            .IsRequired()
+            .HasForeignKey(e => e.CalendarId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
