@@ -11,7 +11,6 @@ namespace Mandara.CalendarsService.Data
         {
             FuturesExpiries = new HashSet<CalendarExpiryDate>();
             Holidays = new HashSet<CalendarHoliday>();
-            Products = new HashSet<Product>();
         }
 
         [Column("calendar_id")]
@@ -35,8 +34,6 @@ namespace Mandara.CalendarsService.Data
         public virtual ICollection<CalendarExpiryDate> FuturesExpiries { get; set; }
 
         public virtual ICollection<CalendarHoliday> Holidays { get; set; }
-
-        public virtual ICollection<Product> Products { get; set; }
 
         [NotMapped]
         public CalendarType CalendarType
