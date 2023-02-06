@@ -19,7 +19,7 @@ namespace Mandara.CalendarsService.Data
         [Column("expiry_date", TypeName = "date")]
         public DateTime ExpiryDate { get; set; }
 
-        public virtual StockCalendar StockCalendar { get; set; }
+        public virtual StockCalendar? StockCalendar { get; set; }
 
         private const int NoId = -1;
         private static readonly DateTime NoDate = DateTime.MinValue;

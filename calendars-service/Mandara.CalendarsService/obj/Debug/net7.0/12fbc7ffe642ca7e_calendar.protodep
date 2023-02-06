@@ -1,0 +1,8 @@
+obj\Debug\net7.0\Protos/Calendar.cs \
+obj\Debug\net7.0\Protos/CalendarGrpc.cs: C:/Users/eugin/.nuget/packages/grpc.tools/2.51.0/build/native/include/google/protobuf/struct.proto\
+ google/api/http.proto\
+ C:/Users/eugin/.nuget/packages/grpc.tools/2.51.0/build/native/include/google/protobuf/descriptor.proto\
+ google/api/annotations.proto\
+ C:/Users/eugin/.nuget/packages/grpc.tools/2.51.0/build/native/include/google/protobuf/timestamp.proto\
+ C:/Users/eugin/.nuget/packages/grpc.tools/2.51.0/build/native/include/google/protobuf/wrappers.proto\
+ Protos/calendar.proto

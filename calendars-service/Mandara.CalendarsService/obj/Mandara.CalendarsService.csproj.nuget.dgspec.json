@@ -1,31 +1,34 @@
 {
   "format": 1,
   "restore": {
-    "D:\\PROJECTS\\MANDARA\\calendars-service\\Mandara.CalendarsService\\Mandara.CalendarsService.csproj": {}
+    "C:\\Users\\eugin\\source\\repos\\roxosoft\\mandara-microservices\\calendars-service\\Mandara.CalendarsService\\Mandara.CalendarsService.csproj": {}
   },
   "projects": {
-    "D:\\PROJECTS\\MANDARA\\calendars-service\\Mandara.CalendarsService\\Mandara.CalendarsService.csproj": {
+    "C:\\Users\\eugin\\source\\repos\\roxosoft\\mandara-microservices\\calendars-service\\Mandara.CalendarsService\\Mandara.CalendarsService.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\PROJECTS\\MANDARA\\calendars-service\\Mandara.CalendarsService\\Mandara.CalendarsService.csproj",
+        "projectUniqueName": "C:\\Users\\eugin\\source\\repos\\roxosoft\\mandara-microservices\\calendars-service\\Mandara.CalendarsService\\Mandara.CalendarsService.csproj",
         "projectName": "Mandara.CalendarsService",
-        "projectPath": "D:\\PROJECTS\\MANDARA\\calendars-service\\Mandara.CalendarsService\\Mandara.CalendarsService.csproj",
-        "packagesPath": "C:\\Users\\barch\\.nuget\\packages\\",
-        "outputPath": "D:\\PROJECTS\\MANDARA\\calendars-service\\Mandara.CalendarsService\\obj\\",
+        "projectPath": "C:\\Users\\eugin\\source\\repos\\roxosoft\\mandara-microservices\\calendars-service\\Mandara.CalendarsService\\Mandara.CalendarsService.csproj",
+        "packagesPath": "C:\\Users\\eugin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\eugin\\source\\repos\\roxosoft\\mandara-microservices\\calendars-service\\Mandara.CalendarsService\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
         "configFilePaths": [
-          "C:\\Users\\barch\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 19.1.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 20.1.config",
+          "C:\\Users\\eugin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net7.0"
         ],
         "sources": {
-          "https://api.nuget.org/v3/index.json": {},
-          "https://nuget.devexpress.com/PvotkXmVw2dt64WHe971ESKbajxjJq6gpVkGKN67b28Njfozbz/api": {},
-          "https://pkgs.dev.azure.com/mandaraenergy/472b6abb-3bad-4489-8162-6f03b8fa8686/_packaging/mnd-devops-packages/nuget/v3/index.json": {}
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net7.0": {
@@ -53,7 +56,7 @@
             },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
-              "version": "[7.0.1, )"
+              "version": "[7.0.2, )"
             },
             "Microsoft.Azure.AppConfiguration.AspNetCore": {
               "target": "Package",
@@ -73,7 +76,7 @@
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
-              "version": "[6.4.0, )"
+              "version": "[6.5.0, )"
             }
           },
           "imports": [
@@ -95,7 +98,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.101\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.102\\RuntimeIdentifierGraph.json"
         }
       }
     }

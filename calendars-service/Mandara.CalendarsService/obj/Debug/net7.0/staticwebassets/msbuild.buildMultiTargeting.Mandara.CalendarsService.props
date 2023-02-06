@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\Mandara.CalendarsService.props" />
+</Project>

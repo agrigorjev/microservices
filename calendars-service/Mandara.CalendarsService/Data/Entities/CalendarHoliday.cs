@@ -17,7 +17,7 @@ namespace Mandara.CalendarsService.Data
         public DateTime HolidayDate { get; set; }
 
         [ForeignKey("CalendarId")]
-        public virtual StockCalendar StockCalendar { get; set; }
+        public virtual StockCalendar? StockCalendar { get; set; }
 
         private const int NoCalendar = 0;
         private static readonly DateTime NoDate = DateTime.MinValue;

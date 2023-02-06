@@ -2,40 +2,66 @@
 using Mandara.CalendarsService.GrpcDefinitions;
 using Mandara.CalendarsService.Services;
 using Mandara.CalendarsService.Data;
-using static Mandara.CalendarsService.GrpcDefinitions.PortfolioService;
 using Mandara.CalendarsService.DataConverters;
+using static Mandara.CalendarsService.GrpcDefinitions.CalendarService;
 
 namespace Mandara.CalendarsService.GrpcServices;
 
-public class CalendarsGrpcService : PortfolioServiceBase
+public class CalendarsGrpcService : CalendarServiceBase
 {
-    private readonly ICalendarsStorage _portfolioCache;
-    private readonly DataConverters.PortfolioDataConverter portfolioConverter = new DataConverters.PortfolioDataConverter();
+    private readonly ICalendarsStorage _cache;
+    private readonly DataConverters.StockCalendarConverter stockCalendarConverter = new DataConverters.StockCalendarConverter();
+    private readonly DataConverters.CalendarHolidayConverter calendarHolidayConverter   = new DataConverters.CalendarHolidayConverter();
+    private readonly DataConverters.CalendarExpiryDateConverter calendarExpiryDateConverter = new DataConverters.CalendarExpiryDateConverter();
 
-    public CalendarsGrpcService(ICalendarsStorage portfolioCache)
+    public CalendarsGrpcService(ICalendarsStorage cache)
     {
-        _portfolioCache = portfolioCache;
+        _cache = cache;
     }
 
-    public override Task<AllPortfoliosResponseGrpcMessage> GetAllPortfolios(AllPortfoliosRequestGrpcMessage request, ServerCallContext context)
+    public override Task<StockCalendarsGrpcMessage> GetAllStockCalendars(GetAllRequestMessage request, ServerCallContext context)
     {
-        AllPortfoliosResponseGrpcMessage responseMessage = new();
-        List<Portfolio> portfolios = _portfolioCache.GetPortfolios().ToList();
+        StockCalendarsGrpcMessage responseMessage = new();
+        _cache.GetStockCalendars().ForEach(calendar => responseMessage.StockCalendars.Add(stockCalendarConverter.Convert(calendar)));
+        return Task.FromResult(responseMessage);
+    }
 
+    public override Task<StockCalendarGrpcResponse> GetStockCalendar(GetByIdRequestMessage request, ServerCallContext context)
+    {
+        StockCalendarGrpcResponse responseMessage = new();
 
-        portfolios.ForEach(portfolio => responseMessage.Portfolios.Add(portfolioConverter.Convert(portfolio)));
+        var calendar = _cache.GetStockCalendar(request.Id);
+
+        responseMessage.StockCalendaryData = stockCalendarConverter.Convert(calendar.ValueOr(StockCalendar.Default));
 
         return Task.FromResult(responseMessage);
     }
 
-    public override Task<PortfolioResponseGrpcMessage> GetPortfolio(PortfolioRequestGrpcMessage request, ServerCallContext context)
+    public override Task<HolidaysGrpcMessage> GetAllHolidays(GetAllRequestMessage request, ServerCallContext context)
     {
-        PortfolioResponseGrpcMessage responseMessage = new();
+        HolidaysGrpcMessage responseMessage = new();
+        _cache.GetCalendarHolidays().ForEach(calendar => responseMessage.Holidays.Add(calendarHolidayConverter.Convert(calendar)));
+        return Task.FromResult(responseMessage);
+    }
 
-        var portfolio = _portfolioCache.GetPortfolio(request.PortfolioId);
+    public override Task<HolidaysGrpcMessage> GetHolidays(GetByIdRequestMessage request, ServerCallContext context)
+    {
+        HolidaysGrpcMessage responseMessage = new();
+        _cache.GetCalendarHolidays(request.Id).ForEach(calendar => responseMessage.Holidays.Add(calendarHolidayConverter.Convert(calendar)));
+        return Task.FromResult(responseMessage);
+    }
 
-        responseMessage.PortfolioData = portfolioConverter.Convert(portfolio.ValueOr(Portfolio.Default));
+    public override Task<ExpiryDatesGrpcMessage> GetAllExpiryDates(GetAllRequestMessage request, ServerCallContext context)
+    {
+        ExpiryDatesGrpcMessage responseMessage = new();
+        _cache.GetCalendarExpiryDates().ForEach(calendar => responseMessage.ExpiryDates.Add(calendarExpiryDateConverter.Convert(calendar)));
+        return Task.FromResult(responseMessage);
+    }
 
+    public override Task<ExpiryDatesGrpcMessage> GetExpiryDates(GetByIdRequestMessage request, ServerCallContext context)
+    {
+        ExpiryDatesGrpcMessage responseMessage = new();
+        _cache.GetCalendarExpiryDates(request.Id).ForEach(calendar => responseMessage.ExpiryDates.Add(calendarExpiryDateConverter.Convert(calendar)));
         return Task.FromResult(responseMessage);
     }
 }
