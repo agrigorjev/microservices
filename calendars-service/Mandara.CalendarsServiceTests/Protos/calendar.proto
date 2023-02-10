@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "Mandara.CalendarsServiceTests.Client";
+
+package calendar;
+
+import "Mandara.CalendarsService/Protos/calendar.proto"
