@@ -32,7 +32,7 @@ public class CalendarsGrpcService : CalendarServiceBase
 
         var calendar = _cache.GetStockCalendar(request.Id);
 
-        responseMessage.StockCalendaryData = stockCalendarConverter.Convert(calendar.ValueOr(StockCalendar.Default));
+        responseMessage.StockCalendarData = stockCalendarConverter.Convert(calendar.ValueOr(StockCalendar.Default));
 
         return Task.FromResult(responseMessage);
     }

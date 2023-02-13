@@ -86,7 +86,7 @@ message HolidaysGrpcMessage{
 message StockCalendarGrpcResponse {
   oneof stock_calendar {
     google.protobuf.NullValue null = 1;
-    StockCalendarGrpc stock_calendary_data = 2;
+    StockCalendarGrpc stock_calendar_data = 2;
   }
 }
 
