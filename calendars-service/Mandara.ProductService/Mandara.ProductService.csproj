@@ -1,0 +1,78 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>aspnet-Mandara.ProductService-6fb04ea2-5948-4f95-9431-884acca51d5f</UserSecretsId>
+    <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+    <DockerfileContext>..\Mandara.CalendarsService</DockerfileContext>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Data\Entities\CalendarExpiryDate.cs" />
+    <Compile Remove="Data\Entities\CalendarHoliday.cs" />
+    <Compile Remove="Data\Entities\ComplexProduct.cs" />
+    <Compile Remove="Data\Entities\Currency.cs" />
+    <Compile Remove="Data\Entities\CurrencyPair.cs" />
+    <Compile Remove="Data\Entities\Exchange.cs" />
+    <Compile Remove="Data\Entities\ExchangeAccount.cs" />
+    <Compile Remove="Data\Entities\ForeignCurrencyPosition.cs" />
+    <Compile Remove="Data\Entities\ForeignCurrencyPositionDetail.cs" />
+    <Compile Remove="Data\Entities\FxOfficialProductPnLMap.cs" />
+    <Compile Remove="Data\Entities\FxPair.cs" />
+    <Compile Remove="Data\Entities\FxTrade.cs" />
+    <Compile Remove="Data\Entities\Money.cs" />
+    <Compile Remove="Data\Entities\OfficialProduct.cs" />
+    <Compile Remove="Data\Entities\PnlReportEod.cs" />
+    <Compile Remove="Data\Entities\Portfolio.cs" />
+    <Compile Remove="Data\Entities\PortfolioTrade.cs" />
+    <Compile Remove="Data\Entities\PrecalcSdDetail.cs" />
+    <Compile Remove="Data\Entities\PrecalcSourcedetailsDetail.cs" />
+    <Compile Remove="Data\Entities\PrecalcTcDetail.cs" />
+    <Compile Remove="Data\Entities\ProductAlias.cs" />
+    <Compile Remove="Data\Entities\ProductCategory.cs" />
+    <Compile Remove="Data\Entities\ProductClass.cs" />
+    <Compile Remove="Data\Entities\SealDetail.cs" />
+    <Compile Remove="Data\Entities\SourceData.cs" />
+    <Compile Remove="Data\Entities\SourceDetail.cs" />
+    <Compile Remove="Data\Entities\StockCalendar.cs" />
+    <Compile Remove="Data\Entities\SwapCrossPerProduct.cs" />
+    <Compile Remove="Data\Entities\TradeCapture.cs" />
+    <Compile Remove="Data\Entities\TradeChange.cs" />
+    <Compile Remove="Data\Entities\TradeGroup.cs" />
+    <Compile Remove="Data\Entities\Unit.cs" />
+    <Compile Remove="Extensions\DailyTimeSpreadLegsDates.cs" />
+    <Compile Remove="Extensions\InternalTime.cs" />
+    <Compile Remove="Services\DayPosition.cs" />
+    <Compile Remove="Services\DayPositionsSerialisation.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Protos\customtypes.proto" />
+    <None Remove="Protos\products.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.51.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Grpc.Swagger" Version="0.3.2" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.2" />
+    <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="5.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Optional" Version="4.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Protos\customtypes.proto" GrpcServices="Both" />
+    <Protobuf Include="Protos\products.proto" GrpcServices="Both" />
+  </ItemGroup>
+
+</Project>

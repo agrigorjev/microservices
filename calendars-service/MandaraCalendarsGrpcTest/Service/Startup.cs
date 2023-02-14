@@ -1,5 +1,8 @@
 ﻿using Mandara.CalendarsService.GrpcServices;
 using Mandara.CalendarsService.Services;
+using Mandara.ProductService.GrpcDefinitions;
+using Mandara.ProductService.GrpcServices;
+using Mandara.ProductService.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +21,7 @@ namespace Mandara.CalendarsGrpcTests.Service
         {
             services.AddGrpc(o => o.EnableDetailedErrors = true);
             services.AddSingleton<ICalendarsStorage, CalendarsStorage>();
+            services.AddSingleton<IProductStorage, ProductStorage>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -32,6 +36,7 @@ namespace Mandara.CalendarsGrpcTests.Service
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcService<CalendarsGrpcService>();
+                 endpoints.MapGrpcService<ProductsGrpcService>();
             });
         }
     }

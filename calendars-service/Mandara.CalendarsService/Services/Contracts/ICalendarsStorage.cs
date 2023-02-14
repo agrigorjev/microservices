@@ -1,5 +1,4 @@
 ﻿using Mandara.CalendarsService.Data;
-using Microsoft.EntityFrameworkCore.Update.Internal;
 using Optional;
 
 namespace Mandara.CalendarsService.Services;

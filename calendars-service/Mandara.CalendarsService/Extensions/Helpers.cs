@@ -1,4 +1,5 @@
-﻿using Mandara.CalendarsService.Configuration;
+﻿using Google.Protobuf.WellKnownTypes;
+using Mandara.CalendarsService.Configuration;
 using Mandara.CalendarsService.Data;
 using Mandara.CalendarsService.Services;
 using Microsoft.EntityFrameworkCore;
@@ -20,5 +21,17 @@ public static class Helpers
             return inDate.ToUniversalTime();
         }
 
+    }
+
+    public static Timestamp toProtoTimestamp(this DateTime? dateTime)
+    {
+        if(dateTime.HasValue)
+        {
+            return Timestamp.FromDateTime(dateTime.Value.ensureUtc());
+        }
+       else
+        {
+            return new Timestamp();
+        }
     }
 }
