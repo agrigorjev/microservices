@@ -1,0 +1,13 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Mandara.ProductGUI.Desks
+{
+    internal static class DesksConfiguration
+    {
+        public const string ConnectionStringName = "VoiceMaker";
+    }
+}

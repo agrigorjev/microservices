@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <Sdk Name="Microsoft.Build.CentralPackageVersions" Version="2.0.79" />
+    <PropertyGroup>
+        <RootNamespace>Mandara.Business</RootNamespace>
+        <TargetFramework>net48</TargetFramework>
+        <Platforms>x64</Platforms>
+        <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+        <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    </PropertyGroup>   
+    <ItemGroup>
+        <PackageReference Include="AutoMapper" />
+        <PackageReference Include="Confluent.Kafka" />
+        <PackageReference Include="CsvHelper" />
+        <PackageReference Include="EntityFramework" />
+        <PackageReference Include="EntityFramework.Extended" />
+        <PackageReference Include="LumenWorks.Framework.IO" />
+        <PackageReference Include="Mandara.Common" />
+        <PackageReference Include="Mandara.Database" />
+        <PackageReference Include="Mandara.Date" />
+        <PackageReference Include="Mandara.Extensions" />
+        <PackageReference Include="Mandara.KafkaMessaging" />
+        <PackageReference Include="morelinq" />
+        <PackageReference Include="MySql.Data" />
+        <PackageReference Include="Newtonsoft.Json" />
+        <PackageReference Include="Ninject" />
+        <PackageReference Include="Ninject.Extensions.Conventions" />
+        <PackageReference Include="Ninject.Extensions.Logging" />
+        <PackageReference Include="NLog" />
+        <PackageReference Include="Optional" />
+    </ItemGroup>
+    <ItemGroup>
+        <Reference Include="lbmcs">
+            <HintPath>..\assemblies\UMS\x64\lbmcs.dll</HintPath>
+        </Reference>
+        <Reference Include="lbmcssdm">
+            <HintPath>..\assemblies\UMS\x64\lbmcssdm.dll</HintPath>
+        </Reference>
+        <Reference Include="System.ComponentModel" />
+        <Reference Include="System.ComponentModel.DataAnnotations" />
+        <Reference Include="System.Configuration" />
+        <Reference Include="System.Configuration.Install" />
+        <Reference Include="System.Drawing.Design" />
+        <Reference Include="System.IO.Compression" />
+        <Reference Include="System.Management" />
+        <Reference Include="System.Runtime.Caching" />
+        <Reference Include="System.ServiceModel" />
+        <Reference Include="System.Transactions" />
+        <Reference Include="System.Data.DataSetExtensions" />
+        <Reference Include="Microsoft.CSharp" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="..\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Mandara.Business.Client\Mandara.Business.Client.csproj" />
+        <ProjectReference Include="..\Mandara.Entities\Mandara.Entities.csproj" />
+        <ProjectReference Include="..\Mandara.Proto.Encoder\Mandara.Proto.Encoder.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+    </ItemGroup>
+</Project>

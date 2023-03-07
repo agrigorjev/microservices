@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Sdk Name="Microsoft.Build.CentralPackageVersions" Version="2.0.79" />
+  <PropertyGroup>
+    <ProjectGuid>81e10983-1102-4e89-aac3-64440f69096f</ProjectGuid>
+    <TargetFramework>net48</TargetFramework>
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+    <AssemblyTitle>Mandara.Proto.Encoder</AssemblyTitle>
+    <Product>Mandara.Proto.Encoder</Product>    
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>  
+  <ItemGroup>
+    <Compile Include="..\CommonAssemblyInfo.cs" Link="CommonAssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>    
+    <PackageReference Include="Google.Protobuf" />
+    <PackageReference Include="Google.Protobuf.Tools" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Mandara.Entities\Mandara.Entities.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="$(TargetFramework.Contains('net4'))">
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  <ItemGroup Condition="$(TargetFramework.Contains('netcoreapp'))">
+    <PackageReference Include="Microsoft.NETCore.Targets" PrivateAssets="all" />
+  </ItemGroup>
+</Project>
