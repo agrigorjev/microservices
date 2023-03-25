@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 
 calendar-service/*/.vs/
+/.vs/VSWorkspaceState.json
+/.vs/mandara-microservices/v17/.wsuo

@@ -1,0 +1,207 @@
+syntax = "proto3";
+
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "Protos/customtypes.proto";
+
+
+option csharp_namespace = "ProductsDemo.GrpcDefinitions";
+
+package products;
+//Service for getting calendar information
+service ProductAPIService {
+	// Get All Products.
+	rpc GetAllProducts (GetAllRequestMessage)
+		returns (ProductsGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/GetProducts"
+		};
+	}
+
+	rpc  GetProduct (GetByIdRequestMessage)
+		returns (ProductGrpcResponse)
+	{
+		option (google.api.http) = {
+			get: "/GetProducts/{id}"
+		};
+	}
+
+	rpc GetAllSecurityDefinitions (GetAllRequestMessage)
+		returns (SecurtyDefinitionsGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/GetSecurrityDefinitions"
+		};
+	}
+
+	rpc  GetSecurrityDefinition (GetByIdRequestMessage)
+		returns (SecurityDefinitionGrpcResponse)
+	{
+		option (google.api.http) = {
+			get: "/GetSecurrityDefinitions/{id}"
+		};
+	}
+}
+
+message GetAllRequestMessage
+{
+
+}
+
+message GetByIdRequestMessage{
+	int32 id=1;
+}
+
+
+message ProductsGrpcMessage{
+	repeated ProductGrpc products=1;
+}
+
+message SecurtyDefinitionsGrpcMessage{
+	repeated SecurityDefinitionGrpc  security_definitions=1;
+}
+
+message ProductGrpcResponse {
+  oneof products {
+    google.protobuf.NullValue null = 1;
+    ProductGrpc product = 2;
+  }
+}
+message SecurityDefinitionGrpcResponse {
+  oneof security_definitions {
+    google.protobuf.NullValue null = 1;
+    SecurityDefinitionGrpc security_definition = 2;
+  }
+}
+
+message ProductGrpc{
+
+		int32 ProductId=1;
+		int32 CalendarId=2;
+		optional google.protobuf.Int32Value HolidaysCalendarId=3;
+		string Name=4;
+		int32 ProductTypeDb=5;
+		optional customtypes.DecimalValue PositionFactor=6;
+		optional customtypes.DecimalValue PnlFactor=7;
+		google.protobuf.Int32Value CategoryId=8;
+		int32 OfficialProductId=9;
+		optional customtypes.DecimalValue ContractSize=10;
+		google.protobuf.Int32Value BalmoOnCrudeProductId=11;
+		google.protobuf.Int32Value BalmoOnComplexProductId=12;
+		optional google.protobuf.Timestamp ValidFrom=13;
+		optional google.protobuf.Timestamp ValidTo=14;
+		google.protobuf.Int32Value UnderlyingFuturesProductId=15;
+		google.protobuf.Int32Value UnderlyingFuturesOverrideId=16;
+		google.protobuf.StringValue ExchangeContractCode=17;
+		optional customtypes.DecimalValue FeeExchange=18;
+		optional customtypes.DecimalValue FeeNfa=19;
+		optional customtypes.DecimalValue FeeCommission=20;
+		optional customtypes.DecimalValue FeeClearing=21;
+		optional google.protobuf.StringValue TimezoneId = 22;
+		optional google.protobuf.Timestamp RolloffTime=23;
+		google.protobuf.BoolValue UseRolloffSettings=24;
+		optional customtypes.DecimalValue FeeConversionFactor=25;
+		optional customtypes.DecimalValue FeeCash=26;
+		optional google.protobuf.StringValue DefinitionLink=27;
+		optional google.protobuf.StringValue BalmoContractCode1=28;
+		optional google.protobuf.StringValue BalmoContractCode2=29;
+		optional google.protobuf.StringValue BalmoContractCode3=30;
+		optional google.protobuf.StringValue BalmoCodeFirstLetter=31;
+		optional google.protobuf.Int32Value ExpirationTypeDb=32;
+		optional google.protobuf.Int32Value RollingMethodDb=33;
+		optional google.protobuf.Timestamp GivenDate=34;
+		optional google.protobuf.Int32Value ExpirationMonth=35;
+		optional google.protobuf.Int32Value NumberOfDays=36;
+		optional google.protobuf.Int32Value ExchangeId=37;
+		optional customtypes.DecimalValue FeeBlockTrade=38;
+		optional customtypes.DecimalValue FeePlattsTrade=39;
+		optional google.protobuf.Timestamp FuturesExpireTime=40;
+		optional google.protobuf.BoolValue UseExpiryCalendar=41;
+		optional google.protobuf.BoolValue IsPhysicallySettledDb=42;
+		optional google.protobuf.BoolValue IsInternalTransferProductDb=43;
+		optional customtypes.DecimalValue PriceConversionFactorDb=44;
+		optional google.protobuf.BoolValue IsTasDb=45;
+		optional google.protobuf.Timestamp PricingEndTime=46;
+		optional google.protobuf.BoolValue TreatTimespreadStripAsLegsDb=47;
+		bool CalculatePnlFromLegs=48;
+		optional google.protobuf.BoolValue IsMopsDb=49;
+		optional google.protobuf.BoolValue IsMmDb=50;
+		optional google.protobuf.Timestamp CategoryOverrideAt=51;
+		optional google.protobuf.Int32Value CategoryOverrideId=52;
+		google.protobuf.Int32Value TasOfficialProductId=53;
+		bool IsChanged=54;
+		optional google.protobuf.Int32Value MonthlyOfficialProductId=55;
+		optional google.protobuf.Int32Value DailyDiffMonthShiftDb=56;
+		optional google.protobuf.StringValue PhysicalCode=57;
+		optional google.protobuf.Int32Value UnitId=58;
+		optional google.protobuf.BoolValue IsAllowedForManualTradesDb=59;
+		optional google.protobuf.Int32Value Currency1Id=60;
+		optional google.protobuf.Int32Value Currency2Id=61;
+		optional google.protobuf.Int32Value FeeClearingCurrencyId=62;
+		optional google.protobuf.Int32Value FeeCommissionCurrencyId=63;
+		optional google.protobuf.Int32Value FeeExchangeCurrencyId=64;
+		optional google.protobuf.Int32Value FeeNfaCurrencyId=65;
+		optional google.protobuf.Int32Value FeeCashCurrencyId=66;
+		optional google.protobuf.Int32Value FeeBlockCurrencyId=67;
+		optional google.protobuf.Int32Value FeePlattsCurrencyId=68;
+		optional google.protobuf.BoolValue IsEnabledRiskDecompositionDb=69;
+		bool IsCalendarDaySwap=70;
+		optional google.protobuf.Int32Value ContractSizeMultiplierDb=71;
+		optional google.protobuf.Int32Value IceEquivalentProductDb=72;
+		optional google.protobuf.Int32Value IceEquivalentUnderlyingProduct=73;
+}
+
+message SecurityDefinitionGrpc{
+	int32 security_definition_id=1;
+	optional google.protobuf.StringValue UnderlyingSymbol=2;
+	optional google.protobuf.StringValue UnderlyingSecurityID=3;
+	optional google.protobuf.StringValue UnderlyingSecurityIDSource=4;
+	optional google.protobuf.StringValue UnderlyingCFICode=5;
+	optional google.protobuf.StringValue UnderlyingSecurityDesc=6;
+	optional google.protobuf.StringValue UnderlyingMaturityDate=7;
+	optional customtypes.DecimalValue UnderlyingContractMultiplier=8;
+	optional customtypes.DecimalValue IncrementPrice=9;
+	optional customtypes.DecimalValue IncrementQty=10;
+	optional google.protobuf.Int32Value  LotSize=11;
+	optional google.protobuf.Int32Value  NumOfCycles=12;
+	optional customtypes.DecimalValue LotSizeMultiplier=13;
+	optional google.protobuf.BoolValue Clearable=14;
+	optional google.protobuf.StringValue StartDate=15;
+	optional google.protobuf.StringValue EndDate=16;
+	optional google.protobuf.Int32Value StripId=17;
+	optional google.protobuf.Int32Value StripType=18;
+	optional google.protobuf.StringValue StripName=19;
+	optional google.protobuf.Int32Value HubId=20;
+	optional google.protobuf.StringValue HubName=21;
+	optional google.protobuf.StringValue HubAlias=22;
+	optional google.protobuf.StringValue UnderlyingUnitOfMeasurei=23;
+	optional google.protobuf.StringValue PriceDenomination=24;
+	optional google.protobuf.StringValue PriceUnit=25;
+	optional google.protobuf.StringValue Granularity=26;
+	optional google.protobuf.Int32Value NumOfDecimalPrice=27;
+	optional google.protobuf.Int32Value NumOfDecimalQty=28;
+	optional google.protobuf.Int32Value ProductIdCC=29;
+	optional google.protobuf.StringValue ProductName=30;
+	optional google.protobuf.StringValue ProductDescription=31;
+	optional customtypes.DecimalValue TickValue=32;
+	 optional google.protobuf.StringValue ImpliedType=33;
+	optional google.protobuf.StringValue PrimaryLegSymbol=34;
+	optional google.protobuf.StringValue SecondaryLegSymbol=35;
+	optional customtypes.DecimalValue IncrementStrike=36;
+	optional customtypes.DecimalValue MinStrike=37;
+	optional customtypes.DecimalValue MaxStrike=38;
+	optional google.protobuf.StringValue Exchange=39;
+	optional google.protobuf.Timestamp StartDateAsDate=40;
+	optional google.protobuf.Timestamp EndDateAsDate=41;
+	optional google.protobuf.Int32Value Strip1DateTypeDb=42;
+	optional google.protobuf.Int32Value Strip2DateTypeDb=43;
+	int32 product_id=44;
+	optional google.protobuf.Timestamp Strip1Date=45;
+	optional google.protobuf.Timestamp Strip2Date=46;
+}
+
+
+
