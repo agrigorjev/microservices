@@ -365,3 +365,8 @@ FodyWeavers.xsd
 calendar-service/*/.vs/
 /.vs/VSWorkspaceState.json
 /.vs/mandara-microservices/v17/.wsuo
+/calendars-service/Mandara.CalendarsService/obj/Debug/net7.0/12fbc7ffe642ca7e_calendar.protodep
+/calendars-service/Mandara.CalendarsService/obj/Debug/net7.0/Mandara.CalendarsService.GeneratedMSBuildEditorConfig.editorconfig
+/calendars-service/Mandara.CalendarsService/obj/Debug/net7.0/Protos/CalendarGrpc.cs
+/calendars-service/Mandara.CalendarsService/obj/Debug/net7.0/Protos/Calendar.cs
+/calendars-service/Mandara.CalendarsService/obj/Debug/net7.0/Mandara.CalendarsService.csproj.AssemblyReference.cache
