@@ -1,15 +1,19 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Security.Cryptography;
 
 namespace DataImport.DataEntries
 {
     [Table("regions")]
     public partial class Region
     {
+
+        [NotMapped]
+        public Guid Id { get; set; }
         public Region()
         {
-            
+            Id=Guid.NewGuid();
         }
 
         [Column("region_id")]

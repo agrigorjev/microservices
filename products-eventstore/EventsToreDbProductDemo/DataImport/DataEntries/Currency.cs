@@ -10,7 +10,15 @@ namespace DataImport.DataEntries
     {
         private const int InvalidId = -1;
         private const string InvalidIso = "___";
-        public static readonly Currency Default = new Currency() { CurrencyId = InvalidId, IsoName = InvalidIso };
+        public static readonly Currency Default = new Currency() { CurrencyId = InvalidId, IsoName = InvalidIso,Id=Guid.NewGuid() };
+
+        [NotMapped]
+        public Guid Id { get; set; }
+
+        public Currency()
+        {
+            Id=Guid.NewGuid();
+        }
 
         [ReadOnly(true)]        
         public bool IsDefault()

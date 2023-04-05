@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Security.Cryptography;
 
 namespace DataImport.DataEntries
 {
@@ -9,7 +10,15 @@ namespace DataImport.DataEntries
     {
         private const int InvalidId = -1;
         private const string InvalidName = "Invalid";
-        public static readonly Unit Default = new Unit() { UnitId = InvalidId, Name = InvalidName };
+        public static readonly Unit Default = new Unit() { UnitId = InvalidId, Name = InvalidName,Id= Guid.NewGuid() };
+
+
+        public Unit() { 
+            Id=Guid.NewGuid();
+        }
+
+        [NotMapped]
+        public Guid Id { get; set; }
 
         [ReadOnly(true)]        
         public bool IsDefault()

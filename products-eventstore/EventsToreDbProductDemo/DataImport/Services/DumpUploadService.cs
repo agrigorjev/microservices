@@ -21,65 +21,78 @@ namespace DataImport.Services
 
         IDbContextFactory<MandaraEntities> _contextFactory;
         EventStoreClient _client;
+        IHostApplicationLifetime _hostApplicationLifetime;
 
-        public DumpUploadService( IDbContextFactory<MandaraEntities> contextFactory, EventStoreClient client)
+        public DumpUploadService(IHostApplicationLifetime hostApplicationLifetime, IDbContextFactory<MandaraEntities> contextFactory, EventStoreClient client)
         {
             _contextFactory= contextFactory;
             _client= client;
+            _hostApplicationLifetime   = hostApplicationLifetime;
+
         }
-       
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+
+      
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-
-            int chunks = 0;
-
-            using (MandaraEntities productsDb = _contextFactory.CreateDbContext())
+            try
             {
               
-                var productTasks=productsDb.OfficialProducts
-                .AsEnumerable()
-                .Select(op => new EventData(Uuid.FromGuid(Guid.NewGuid()), "new", Encoding.UTF8.GetBytes(JsonSerializer.Serialize<OfficialProduct>(op))))
-                .Chunk(10)
-                .Select(evts => _client.AppendToStreamAsync("OfficialProducts", StreamState.Any, evts).ContinueWith(res =>
+
+                using (MandaraEntities productsDb = _contextFactory.CreateDbContext())
                 {
-                    Console.WriteLine("OP: {0} {1}", chunks++, res.Result.LogPosition);
-                })               
-                ).ToList();
 
-                var unitTasks = productsDb.Units
-              .AsEnumerable()
-              .Select(op => new EventData(Uuid.FromGuid(Guid.NewGuid()), "new", Encoding.UTF8.GetBytes(JsonSerializer.Serialize<Unit>(op))))
-              .Chunk(10)
-              .Select(evts => _client.AppendToStreamAsync("Units", StreamState.Any, evts).ContinueWith(res =>
-              {
-                  Console.WriteLine("Units: {0} {1}", chunks++, res.Result.LogPosition);
-              })
-              ).ToList();
+                    var curencyCollection = productsDb.Currencies.ToDictionary(c => c.CurrencyId);
+                    var regionCollection = productsDb.Regions.ToDictionary(c => c.RegionId);
+                    var unitCollection = productsDb.Units.ToDictionary(c => c.UnitId);
 
-                var regionTasks = productsDb.Regions
-              .AsEnumerable()
-              .Select(op => new EventData(Uuid.FromGuid(Guid.NewGuid()), "new", Encoding.UTF8.GetBytes(JsonSerializer.Serialize<Region>(op))))
-              .Chunk(10)
-              .Select(evts => _client.AppendToStreamAsync("Regions", StreamState.Any, evts).ContinueWith(res =>
-              {
-                  Console.WriteLine("Region : {0} {1}", chunks++, res.Result.LogPosition);
-              })
-              ).ToList();
+                    int chunksC = 0;
+                    await curencyCollection.Values
+                        .Select(c => new EventData(Uuid.FromGuid(Guid.NewGuid()), "new", Encoding.UTF8.GetBytes(JsonSerializer.Serialize<Currency>(c))))
+                        .Chunk(10).
+                         ToObservable<EventData[]>()
+                        .ForEachAsync(evts => _client.AppendToStreamAsync("Currency.v1", StreamState.Any, evts).ContinueWith(res =>
+                         Console.WriteLine("Currency: {0} {1}", chunksC++, res.Result.LogPosition)));
+                    
+                    int chunkR = 0;
+                    await regionCollection.Values
+                        .Select(c => new EventData(Uuid.FromGuid(Guid.NewGuid()), "new", Encoding.UTF8.GetBytes(JsonSerializer.Serialize<Region>(c))))
+                        .Chunk(10).
+                         ToObservable<EventData[]>()
+                        .ForEachAsync(evts => _client.AppendToStreamAsync("Region.v1", StreamState.Any, evts).ContinueWith(res =>
+                         Console.WriteLine("Region: {0} {1}", chunkR++, res.Result.LogPosition)));
 
-                var currencyTasks = productsDb.Currencies
-              .AsEnumerable()
-              .Select(op => new EventData(Uuid.FromGuid(Guid.NewGuid()), "new", Encoding.UTF8.GetBytes(JsonSerializer.Serialize<Currency>(op))))
-              .Chunk(10)
-              .Select(evts => _client.AppendToStreamAsync("Currencies", StreamState.Any, evts).ContinueWith(res =>
-              {
-                  Console.WriteLine("Carrency: {0} {1}", chunks++, res.Result.LogPosition);
-              })
-              ).ToList();
+                    int chunkU= 0;
+                    await unitCollection.Values
+                       .Select(c => new EventData(Uuid.FromGuid(Guid.NewGuid()), "new", Encoding.UTF8.GetBytes(JsonSerializer.Serialize<Unit>(c))))
+                       .Chunk(10).
+                        ToObservable<EventData[]>()
+                       .ForEachAsync(evts => _client.AppendToStreamAsync("Region.v1", StreamState.Any, evts).ContinueWith(res =>
+                        Console.WriteLine("Unit: {0} {1}", chunkU++, res.Result.LogPosition)));
 
-                Task.WaitAll(productTasks.Concat(currencyTasks).Concat(regionTasks).Concat(unitTasks).ToArray());
+                    var opList = productsDb.OfficialProducts.ToList();
+
+                    int chunkP = 0;
+                    opList.ForEach(op =>
+                    {
+                        op.UnitGuid = unitCollection[op.PriceUnitId].Id;
+                        op.CurrencyGuId = curencyCollection[op.CurrencyId].Id;
+                        if (op.RegionId.HasValue) op.RegionGuId = regionCollection[op.RegionId.Value].Id;
+                    });
+
+                   await opList
+                     .Select(op => new EventData(Uuid.FromGuid(Guid.NewGuid()), "new", Encoding.UTF8.GetBytes(JsonSerializer.Serialize<OfficialProduct>(op))))
+                    .Chunk(10)
+                      .ToObservable<EventData[]>()
+                       .ForEachAsync(evts => _client.AppendToStreamAsync("OfficialProduct.v1", StreamState.Any, evts).ContinueWith(res =>
+                        Console.WriteLine("OP: {0} {1}", chunkP++, res.Result.LogPosition)));
+                }
             }
-            return Task.CompletedTask;
+            finally
+            {
+                 await _client.DisposeAsync();  
+                _hostApplicationLifetime.StopApplication();
+            }
         }
     }
 }

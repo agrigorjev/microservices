@@ -15,12 +15,18 @@ namespace DataImport.DataEntries
 
         public const string DefaultName = "DefaultOffProd";
         public const int DefaultId = 0;
-        
+
+        private Guid? _id;
+
+        [NotMapped]
+        public Guid Id { get; set; }
+            
         public static readonly OfficialProduct Default = new OfficialProduct()
         {
             OfficialProductId = DefaultId,
             Name = DefaultName,
-            DisplayName = DefaultName
+            DisplayName = DefaultName,
+            Id=Guid.NewGuid(),
         };
 
         public bool IsDefault()
@@ -31,6 +37,7 @@ namespace DataImport.DataEntries
 
         public OfficialProduct()
         {
+            Id= Guid.NewGuid();
         }
 
         [Column("official_product_id")]
@@ -72,6 +79,8 @@ namespace DataImport.DataEntries
         [Column("region_id")]
         public int? RegionId { get; set; }
 
+       
+
         private bool _publishToUms;
 
         [Column("publish_to_ums")]
@@ -108,6 +117,15 @@ namespace DataImport.DataEntries
 
         [Column("currency_id")]
         public int CurrencyId { get; set; }
+
+        [NotMapped]
+        public Guid CurrencyGuId { get; set; }
+
+        [NotMapped]
+        public Guid? RegionGuId { get; set; }
+
+        [NotMapped]
+        public Guid UnitGuid { get; set; }
 
         public override bool Equals(object obj)
         {
