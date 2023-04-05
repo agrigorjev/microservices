@@ -67,7 +67,7 @@ namespace DataImport.Services
                        .Select(c => new EventData(Uuid.FromGuid(Guid.NewGuid()), "new", Encoding.UTF8.GetBytes(JsonSerializer.Serialize<Unit>(c))))
                        .Chunk(10).
                         ToObservable<EventData[]>()
-                       .ForEachAsync(evts => _client.AppendToStreamAsync("Region.v1", StreamState.Any, evts).ContinueWith(res =>
+                       .ForEachAsync(evts => _client.AppendToStreamAsync("PriceUnit.v1", StreamState.Any, evts).ContinueWith(res =>
                         Console.WriteLine("Unit: {0} {1}", chunkU++, res.Result.LogPosition)));
 
                     var opList = productsDb.OfficialProducts.ToList();
