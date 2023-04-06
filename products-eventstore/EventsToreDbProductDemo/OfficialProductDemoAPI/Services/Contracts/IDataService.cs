@@ -1,4 +1,6 @@
-﻿using Optional;
+﻿using EventStore.Client;
+using Optional;
+using System.Text;
 
 namespace OfficialProductDemoAPI.Services.Contracts
 {
@@ -10,7 +12,10 @@ namespace OfficialProductDemoAPI.Services.Contracts
 
         Option<T> GetSingle(string id);
 
+        string StreamName { get; }
 
+
+       
 
     }
 }

@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 
 namespace MandaraDemoDTO
 {
-    public partial class Region
+    public partial class Region: IReference
     {
         public Guid Id { get; set; }
 
@@ -18,7 +18,7 @@ namespace MandaraDemoDTO
                 return false;
             }
             var p = obj as Region;
-            if ((System.Object)p == null)
+            if (p == null)
             {
                 return false;
             }

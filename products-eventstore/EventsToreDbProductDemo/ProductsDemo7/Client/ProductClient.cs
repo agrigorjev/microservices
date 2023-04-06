@@ -10,6 +10,8 @@ namespace ProductsDemo.Client
     public class ProductClientImpl: ProductAPIServiceClient,IDisposable
     {
         ChannelBase _channel;
+
+
         public ProductClientImpl(ChannelBase channel):base(channel)
         {
             _channel = channel;
@@ -26,7 +28,27 @@ namespace ProductsDemo.Client
             
         }
 
+        public IObservable<CurrencyGrpc> loadAllCurrencies()
+        {
+            return Observable.FromAsync(() => GetCurrencyReferenceAsync(new GetAllRequestMessage()).ResponseAsync).Select(x => x.Reference)
+                 .SelectMany(lst =>lst.Select(grpc => grpc)) ;
 
+        }
+
+        public IObservable<PriceUnitGrpc> loadAllPriceUnits()
+        {
+            return Observable.FromAsync(() => GetPriceUnitReferenceAsync(new GetAllRequestMessage()).ResponseAsync).Select(x => x.Reference)
+                 .SelectMany(lst => lst.Select(grpc => grpc));
+
+        }
+
+
+        public IObservable<RegiontGrpc> loadAllRegions()
+        {
+            return Observable.FromAsync(() => GetRegionReferenceAsync(new GetAllRequestMessage()).ResponseAsync).Select(x => x.Reference)
+                 .SelectMany(lst => lst.Select(grpc => grpc));
+
+        }
 
 
     }

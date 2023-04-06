@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MandaraDemoDTO
 {
-    public partial class Currency
+    public partial class Currency: IReference
     {
  
         public Guid Id { get; set; }

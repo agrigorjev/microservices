@@ -9,10 +9,6 @@ namespace ProductsDemo7.Extensions
     public class OfficialProductConverter : IDataConverter< ProductGrpc,OfficialProduct>
     {
 
-        private PriceUnitDataConverter _priceUnitDataConverter = new PriceUnitDataConverter();
-        private CurrencyDataConverter _currencyDataConverter = new CurrencyDataConverter();
-        private RegionDataConverter _regionDataConverter = new RegionDataConverter();
-
         public OfficialProduct? Convert(ProductGrpc data)
         {
             if (data == null) return null;
@@ -39,10 +35,7 @@ namespace ProductsDemo7.Extensions
                     IsAllowedForManualTradesDb = data.IsAllowedForManualTradesDb,
                     CurrencyGuId = Guid.Parse(data.CurrencyGuId),
                     RegionGuId = data.RegionGuId.toGuidNullable(),
-                    UnitGuid = Guid.Parse(data.UnitGuid),
-                    Currency = _currencyDataConverter.Convert(data.Currency),
-                    PriceUnit = _priceUnitDataConverter.Convert(data.PriceUnit),
-                    Region = _regionDataConverter.Convert(data.Region)
+                    UnitGuid = Guid.Parse(data.UnitGuid)
 
                 };
             }

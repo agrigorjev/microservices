@@ -7,9 +7,7 @@ namespace OfficialProductDemoAPI.Services
     public class OfficialProductConverter : IDataConverter<OfficialProduct, ProductGrpc>
     {
 
-        private PriceUnitDataConverter _priceUnitDataConverter=new PriceUnitDataConverter();
-        private CurrencyDataConverter  _currencyDataConverter = new CurrencyDataConverter();
-        private RegionDataConverter _regionDataConverter = new RegionDataConverter();
+        
 
         public ProductGrpc? Convert(OfficialProduct data)
         {
@@ -37,10 +35,7 @@ namespace OfficialProductDemoAPI.Services
                    IsAllowedForManualTradesDb = data.IsAllowedForManualTradesDb,
                    CurrencyGuId = data.CurrencyGuId.ToString(),
                    RegionGuId = data.RegionGuId.ToString(),
-                   UnitGuid = data.UnitGuid.ToString(),
-                   Currency=_currencyDataConverter.Convert(data.Currency),
-                    PriceUnit=_priceUnitDataConverter.Convert(data.PriceUnit),
-                    Region=_regionDataConverter.Convert(data.Region)
+                   UnitGuid = data.UnitGuid.ToString()
 
                 };
             }

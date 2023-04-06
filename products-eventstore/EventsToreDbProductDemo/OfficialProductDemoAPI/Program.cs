@@ -2,6 +2,7 @@ using Google.Api;
 using MandaraDemoDTO;
 using Microsoft.OpenApi.Models;
 using OfficialProductDemoAPI.Services;
+using OfficialProductDemoAPI.Services.Cache;
 using OfficialProductDemoAPI.Services.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +16,10 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddEventStoreClient(builder.Configuration.GetSection("EventsStrore").GetValue<String>("local"));
-builder.Services.AddSingleton<IDataService<OfficialProduct>,CacheService>();
+builder.Services.AddSingleton<CacheService<OfficialProduct>,OfficialProductsCacheService>();
+builder.Services.AddSingleton<CacheService<Currency>,CurrencyCacheService>();
+builder.Services.AddSingleton<CacheService<Unit>,UnitCacheService>();
+builder.Services.AddSingleton<CacheService<Region>,RegionCacheService>();
 builder.Services.AddHostedService<OperationalService>();
 
 var app = builder.Build();

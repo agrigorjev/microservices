@@ -28,6 +28,29 @@ service ProductAPIService {
 			get: "/GetProducts/{id}"
 		};
 	}
+
+	rpc  GetCurrencyReference (GetAllRequestMessage)
+		returns (CurrencyGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/GetCurrency"
+		};
+	}
+	
+	rpc GetPriceUnitReference (GetAllRequestMessage)
+		returns (PriceUnitGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/GetPriceUnits"
+		};
+	}
+	rpc  GetRegionReference (GetAllRequestMessage)
+		returns (RegionGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/GetRegions"
+		};
+	}
 }
 
 message GetAllRequestMessage
@@ -42,6 +65,17 @@ message GetByIdRequestMessage{
 
 message ProductsGrpcMessage{
 	repeated ProductGrpc products=1;
+}
+
+
+message RegionGrpcMessage{
+	repeated RegiontGrpc reference=1;
+}
+message PriceUnitGrpcMessage{
+	repeated PriceUnitGrpc reference=1;
+}
+message CurrencyGrpcMessage{
+	repeated CurrencyGrpc reference=1;
 }
 
 message ProductGrpcResponse {

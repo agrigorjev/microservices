@@ -1,5 +1,6 @@
 ﻿
 using Google.Protobuf.WellKnownTypes;
+using OfficialProductDemoAPI.Services.Cache;
 
 namespace OfficialProductDemoAPI.Extensions;
 
@@ -63,6 +64,27 @@ public static class Helpers
         {
             return null;
         }
+    }
+
+    public static KnownEvents toKnownEvent(this string? value)
+    {
+        if (value!=null)
+        {
+           if(value.EqualTrimmed("create",StringComparison.OrdinalIgnoreCase) || value.EqualTrimmed("new", StringComparison.OrdinalIgnoreCase))
+            {
+                return KnownEvents.Create;
+            }
+            if (value.EqualTrimmed("update", StringComparison.OrdinalIgnoreCase))
+            {
+                return KnownEvents.Update;
+            }
+            if (value.EqualTrimmed("delete", StringComparison.OrdinalIgnoreCase))
+            {
+                return KnownEvents.Delete;
+            }
+        }
+         return KnownEvents.UNKNOWN;
+
     }
 
 }

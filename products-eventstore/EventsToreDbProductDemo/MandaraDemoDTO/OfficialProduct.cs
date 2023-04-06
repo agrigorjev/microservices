@@ -2,11 +2,11 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using System.Text.Json.Serialization;
 
 namespace MandaraDemoDTO
 {
-    public partial class OfficialProduct
+    public partial class OfficialProduct:IReference
     {
 
         public Guid Id { get; set; }
@@ -58,10 +58,11 @@ namespace MandaraDemoDTO
         public Guid? RegionGuId { get; set; }
         public Guid UnitGuid { get; set; }
 
+        [JsonIgnore]
         public Currency? Currency { get;set;}
-
+        [JsonIgnore]
         public Region? Region { get; set; }
-
+        [JsonIgnore]
         public Unit? PriceUnit { get; set; }
 
         public override bool Equals(object obj)

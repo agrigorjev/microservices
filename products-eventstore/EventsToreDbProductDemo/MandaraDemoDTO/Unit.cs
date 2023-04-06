@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MandaraDemoDTO
 {
-    public partial class Unit
+    public partial class Unit: IReference
     {
 
         public Guid Id { get; set; }
