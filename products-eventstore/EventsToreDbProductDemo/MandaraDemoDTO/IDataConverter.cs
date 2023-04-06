@@ -1,4 +1,4 @@
-﻿namespace OfficialProductDemoAPI.Services.Contracts
+﻿namespace MandaraDemoDTO
 {
     public interface IDataConverter<T,U>
     {

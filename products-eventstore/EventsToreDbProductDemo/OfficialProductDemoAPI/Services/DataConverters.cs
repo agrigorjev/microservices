@@ -1,5 +1,4 @@
 ﻿using MandaraDemoDTO;
-using OfficialProductDemoAPI.Services.Contracts;
 using OfficialProductDemoAPI.Extensions;
 using MandaraDemo.GrpcDefinitions;
 

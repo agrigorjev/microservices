@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MandaraDemoDTO
 {
-    public class OfficialProduct
+    public partial class OfficialProduct
     {
 
         public Guid Id { get; set; }
