@@ -1,6 +1,7 @@
 ﻿using MandaraDemoDTO;
 using OfficialProductDemoAPI.Extensions;
 using MandaraDemo.GrpcDefinitions;
+using MandaraDemoDTO.Contracts;
 
 namespace OfficialProductDemoAPI.Services
 {

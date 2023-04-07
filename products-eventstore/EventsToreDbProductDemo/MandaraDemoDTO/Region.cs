@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Cryptography;
+using MandaraDemoDTO.Contracts;
 
 namespace MandaraDemoDTO
 {
-    public partial class Region: IReference
+    public partial class Region: IReferece
     {
         public Guid Id { get; set; }
 

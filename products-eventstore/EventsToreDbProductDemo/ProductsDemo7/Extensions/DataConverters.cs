@@ -3,6 +3,7 @@ using MandaraDemo.GrpcDefinitions;
 using Region = MandaraDemoDTO.Region;
 using CustomTypes;
 using ProductsDemo7.Extensions;
+using MandaraDemoDTO.Contracts;
 
 namespace ProductsDemo7.Extensions
 {

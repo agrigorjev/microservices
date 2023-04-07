@@ -1,9 +1,10 @@
 
 using System.ComponentModel.DataAnnotations;
+using MandaraDemoDTO.Contracts;
 
 namespace MandaraDemoDTO
 {
-    public partial class Unit: IReference
+    public partial class Unit: IReferece
     {
 
         public Guid Id { get; set; }

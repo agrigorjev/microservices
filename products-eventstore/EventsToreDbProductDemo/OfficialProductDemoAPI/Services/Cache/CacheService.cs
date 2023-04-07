@@ -2,6 +2,8 @@
 using Google.Api;
 using MandaraDemo.GrpcDefinitions;
 using MandaraDemoDTO;
+using MandaraDemoDTO.Contracts;
+using MandaraDemoDTO.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OfficialProductDemoAPI.Extensions;
@@ -20,15 +22,9 @@ namespace OfficialProductDemoAPI.Services.Cache
 
 {
 
-    public enum KnownEvents
-    {
-        UNKNOWN,
-        Create,
-        Update,
-        Delete
-    }
 
-    public abstract class CacheService<T> : IDataService<T> where T:IReference
+
+    public abstract class CacheService<T> : IDataService<T> where T:IReferece
     {
         protected ConcurrentDictionary<Guid, T> _cache = new ConcurrentDictionary<Guid, T>();
 

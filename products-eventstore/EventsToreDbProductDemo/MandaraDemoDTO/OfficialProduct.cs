@@ -3,10 +3,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using MandaraDemoDTO.Contracts;
 
 namespace MandaraDemoDTO
 {
-    public partial class OfficialProduct:IReference
+    public partial class OfficialProduct:IReferece
     {
 
         public Guid Id { get; set; }
@@ -85,7 +86,14 @@ namespace MandaraDemoDTO
             return Name;
         }
 
-
+        [JsonIgnore]
+        public Boolean isNew
+        {
+            get
+            {
+                return Id == null || Id == Guid.Empty;
+            }
+        }
 
     }
 }

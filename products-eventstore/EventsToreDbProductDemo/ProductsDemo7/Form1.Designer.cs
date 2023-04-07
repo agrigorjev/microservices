@@ -50,14 +50,20 @@
             colSettlementProductId = new DevExpress.XtraGrid.Columns.GridColumn();
             colIsAllowedForManualTradesDb = new DevExpress.XtraGrid.Columns.GridColumn();
             colCurrencyGuId = new DevExpress.XtraGrid.Columns.GridColumn();
+            currencyEditor = new DevExpress.XtraEditors.Repository.RepositoryItemLookUpEdit();
             colRegionGuId = new DevExpress.XtraGrid.Columns.GridColumn();
+            regionEditor = new DevExpress.XtraEditors.Repository.RepositoryItemLookUpEdit();
             colUnitGuid = new DevExpress.XtraGrid.Columns.GridColumn();
+            priceUnitEditor = new DevExpress.XtraEditors.Repository.RepositoryItemLookUpEdit();
             colCurrency = new DevExpress.XtraGrid.Columns.GridColumn();
             colRegion = new DevExpress.XtraGrid.Columns.GridColumn();
             colPriceUnit = new DevExpress.XtraGrid.Columns.GridColumn();
             gridControl1 = new DevExpress.XtraGrid.GridControl();
             statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)gridView1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)currencyEditor).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)regionEditor).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)priceUnitEditor).BeginInit();
             ((System.ComponentModel.ISupportInitialize)gridControl1).BeginInit();
             SuspendLayout();
             // 
@@ -83,7 +89,15 @@
             gridView1.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] { colId, colName, colDisplayName, colMappingColumn, colApplySignVerification, colApplyFractionPartVerification, colEpsilon, colApplyMissingPointVerification, colMissingPointAccuracy, colVoiceName, colPublishToUms, colNameOnUms, colUnitToBarrelConversionFactor, colprice_expiration_period, colspread_price_expiration_period, coldesk_id, colSettlementProductId, colIsAllowedForManualTradesDb, colCurrencyGuId, colRegionGuId, colUnitGuid, colCurrency, colRegion, colPriceUnit });
             gridView1.GridControl = gridControl1;
             gridView1.Name = "gridView1";
+            gridView1.OptionsBehavior.AllowDeleteRows = DevExpress.Utils.DefaultBoolean.True;
+            gridView1.OptionsBehavior.EditingMode = DevExpress.XtraGrid.Views.Grid.GridEditingMode.EditFormInplaceHideCurrentRow;
+            gridView1.OptionsMenu.ShowAddNewSummaryItem = DevExpress.Utils.DefaultBoolean.False;
+            gridView1.OptionsNavigation.AutoFocusNewRow = true;
             gridView1.OptionsView.ShowGroupPanel = false;
+            gridView1.RowDeleting += gridView1_RowDeleting;
+            gridView1.RowDeleted += gridView1_RowDeleted;
+            gridView1.ValidateRow += gridView1_ValidateRow;
+            gridView1.RowUpdated += gridView1_RowUpdated;
             // 
             // colId
             // 
@@ -91,6 +105,7 @@
             colId.Fixed = DevExpress.XtraGrid.Columns.FixedStyle.Left;
             colId.Name = "colId";
             colId.OptionsColumn.ReadOnly = true;
+            colId.OptionsEditForm.Visible = DevExpress.Utils.DefaultBoolean.False;
             colId.Visible = true;
             colId.VisibleIndex = 0;
             // 
@@ -217,23 +232,62 @@
             // 
             // colCurrencyGuId
             // 
+            colCurrencyGuId.ColumnEdit = currencyEditor;
             colCurrencyGuId.FieldName = "CurrencyGuId";
             colCurrencyGuId.Name = "colCurrencyGuId";
+            colCurrencyGuId.OptionsEditForm.Caption = "Currency:";
+            colCurrencyGuId.OptionsEditForm.Visible = DevExpress.Utils.DefaultBoolean.True;
+            // 
+            // currencyEditor
+            // 
+            currencyEditor.AcceptEditorTextAsNewValue = DevExpress.Utils.DefaultBoolean.False;
+            currencyEditor.AutoHeight = false;
+            currencyEditor.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            currencyEditor.Columns.AddRange(new DevExpress.XtraEditors.Controls.LookUpColumnInfo[] { new DevExpress.XtraEditors.Controls.LookUpColumnInfo("IsoName", "Currency") });
+            currencyEditor.DisplayMember = "IsoName";
+            currencyEditor.Name = "currencyEditor";
+            currencyEditor.ValueMember = "Id";
             // 
             // colRegionGuId
             // 
+            colRegionGuId.ColumnEdit = regionEditor;
             colRegionGuId.FieldName = "RegionGuId";
             colRegionGuId.Name = "colRegionGuId";
+            colRegionGuId.OptionsEditForm.Caption = "Region:";
+            colRegionGuId.OptionsEditForm.Visible = DevExpress.Utils.DefaultBoolean.True;
+            // 
+            // regionEditor
+            // 
+            regionEditor.AutoHeight = false;
+            regionEditor.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            regionEditor.Columns.AddRange(new DevExpress.XtraEditors.Controls.LookUpColumnInfo[] { new DevExpress.XtraEditors.Controls.LookUpColumnInfo("Name", "Name") });
+            regionEditor.DisplayMember = "Name";
+            regionEditor.Name = "regionEditor";
+            regionEditor.Tag = "";
+            regionEditor.ValueMember = "Id";
             // 
             // colUnitGuid
             // 
+            colUnitGuid.ColumnEdit = priceUnitEditor;
             colUnitGuid.FieldName = "UnitGuid";
             colUnitGuid.Name = "colUnitGuid";
+            colUnitGuid.OptionsEditForm.Caption = "PriceUnit:";
+            colUnitGuid.OptionsEditForm.Visible = DevExpress.Utils.DefaultBoolean.True;
+            // 
+            // priceUnitEditor
+            // 
+            priceUnitEditor.AutoHeight = false;
+            priceUnitEditor.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            priceUnitEditor.Columns.AddRange(new DevExpress.XtraEditors.Controls.LookUpColumnInfo[] { new DevExpress.XtraEditors.Controls.LookUpColumnInfo("Name", "Name") });
+            priceUnitEditor.DisplayMember = "Name";
+            priceUnitEditor.Name = "priceUnitEditor";
+            priceUnitEditor.ValueMember = "Id";
             // 
             // colCurrency
             // 
             colCurrency.FieldName = "Currency";
             colCurrency.Name = "colCurrency";
+            colCurrency.OptionsEditForm.Visible = DevExpress.Utils.DefaultBoolean.False;
             colCurrency.Visible = true;
             colCurrency.VisibleIndex = 18;
             // 
@@ -241,6 +295,7 @@
             // 
             colRegion.FieldName = "Region";
             colRegion.Name = "colRegion";
+            colRegion.OptionsEditForm.Visible = DevExpress.Utils.DefaultBoolean.False;
             colRegion.Visible = true;
             colRegion.VisibleIndex = 19;
             // 
@@ -248,18 +303,23 @@
             // 
             colPriceUnit.FieldName = "PriceUnit";
             colPriceUnit.Name = "colPriceUnit";
+            colPriceUnit.OptionsEditForm.Visible = DevExpress.Utils.DefaultBoolean.False;
             colPriceUnit.Visible = true;
             colPriceUnit.VisibleIndex = 20;
             // 
             // gridControl1
             // 
             gridControl1.Dock = DockStyle.Fill;
+            gridControl1.EmbeddedNavigator.ButtonClick += gridControl1_EmbeddedNavigator_ButtonClick;
             gridControl1.Location = new Point(0, 0);
             gridControl1.MainView = gridView1;
             gridControl1.Name = "gridControl1";
+            gridControl1.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] { currencyEditor, priceUnitEditor, regionEditor });
             gridControl1.Size = new Size(800, 428);
             gridControl1.TabIndex = 1;
+            gridControl1.UseEmbeddedNavigator = true;
             gridControl1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] { gridView1 });
+            gridControl1.Click += gridControl1_Click;
             // 
             // Form1
             // 
@@ -274,6 +334,9 @@
             statusStrip.ResumeLayout(false);
             statusStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)gridView1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)currencyEditor).EndInit();
+            ((System.ComponentModel.ISupportInitialize)regionEditor).EndInit();
+            ((System.ComponentModel.ISupportInitialize)priceUnitEditor).EndInit();
             ((System.ComponentModel.ISupportInitialize)gridControl1).EndInit();
             ResumeLayout(false);
             PerformLayout();
@@ -309,5 +372,8 @@
         private DevExpress.XtraGrid.Columns.GridColumn colCurrency;
         private DevExpress.XtraGrid.Columns.GridColumn colRegion;
         private DevExpress.XtraGrid.Columns.GridColumn colPriceUnit;
+        private DevExpress.XtraEditors.Repository.RepositoryItemLookUpEdit currencyEditor;
+        private DevExpress.XtraEditors.Repository.RepositoryItemLookUpEdit regionEditor;
+        private DevExpress.XtraEditors.Repository.RepositoryItemLookUpEdit priceUnitEditor;
     }
 }

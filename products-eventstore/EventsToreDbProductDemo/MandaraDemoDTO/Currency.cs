@@ -2,10 +2,11 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MandaraDemoDTO.Contracts;
 
 namespace MandaraDemoDTO
 {
-    public partial class Currency: IReference
+    public partial class Currency: IReferece
     {
  
         public Guid Id { get; set; }

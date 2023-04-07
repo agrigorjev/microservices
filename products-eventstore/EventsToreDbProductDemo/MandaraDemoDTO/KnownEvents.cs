@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace MandaraDemoDTO
 {
-    public interface IReference
+    public enum KnownEvents
     {
-        Guid Id{ get; set; }
+        UNKNOWN,
+        Create,
+        Update,
+        Delete
     }
 }

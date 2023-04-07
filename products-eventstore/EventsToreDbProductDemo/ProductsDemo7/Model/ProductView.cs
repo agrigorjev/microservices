@@ -1,9 +1,16 @@
 ﻿
+using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using DevExpress.Mvvm.Native;
+using DevExpress.Xpo;
+using DevExpress.XtraEditors.Design;
+using EventStore.Client;
 using Grpc.Net.Client;
 using MandaraDemoDTO;
 using ProductsDemo.Client;
@@ -14,6 +21,7 @@ namespace ProductsDemo.Model
 {
     public class ProductView : IDisposable,INotifyPropertyChanged
     {
+
         private ProductClientImpl _client;
         CancellationToken stopLoad = new CancellationToken();
         private OfficialProductConverter officialProductConverter = new OfficialProductConverter();
@@ -57,6 +65,10 @@ namespace ProductsDemo.Model
 
         public BindingList<OfficialProduct> Products { get { return _products; } }
 
+        public BindingList<Currency> CurrencySrc { get { return new BindingList<Currency>(_currencies.Values.ToList()); } }
+        public BindingList<Unit> PriceUnitSrc { get { return new BindingList<Unit>(_priceUnits.Values.ToList()); } }
+        public BindingList<Region> RegionsSrc { get { return new BindingList<Region>(_regions.Values.ToList()); } }
+
         private Exception? _ex =null;
 
         private int counter=0;
@@ -86,7 +98,56 @@ namespace ProductsDemo.Model
             DoLoadAll();
         }
 
+        public void DoRefreshList(IObservable<IWriteResult> before)
+        {
+            Subject<DateTime> subject = new();
+            var act = 
+                
+                _client.loadAll()
+              .Do(result =>
+              {
+                  _products.Clear();
 
+                  result.Select(p => officialProductConverter.Convert(p)).Where(p => p != null)
+                   .ToList()
+                   .ForEach(p => {
+                     if (_currencies.TryGetValue(p.CurrencyGuId, out Currency currency))
+                     {
+                         p.Currency = currency;
+                     }
+                     if (_priceUnits.TryGetValue(p.UnitGuid, out Unit unit))
+                     {
+                         p.PriceUnit = unit;
+                     }
+                     if (p.RegionGuId != null && _regions.TryGetValue(p.CurrencyGuId, out Region region))
+                     {
+                         p.Region = region;
+                     }
+                     _products.Add(p);
+                 });
+                  Debug.Print("Done loading OP [{0}]", DateTime.Now);
+                  Loading = false;
+                  LastError = null;
+                  OnProductsLoaded();
+              })
+             .RetryWithBackoffStrategy(int.MaxValue, n => TimeSpan.FromSeconds(2), ex =>
+             {
+                 Debug.WriteLine("Retry " + counter++.ToString() + " " + DateTime.Now.ToString());
+                 LastError = ex;
+                 Loading = false;
+                 return true;
+
+             });
+
+            before
+                .Select(x=>true)
+                .Delay(TimeSpan.FromSeconds(2))
+                .Concat(act.Select(x=>true))
+                .DelaySubscription(TimeSpan.FromSeconds(2))
+               .Subscribe();
+
+
+        }
 
         private void DoLoadAll()
         {
