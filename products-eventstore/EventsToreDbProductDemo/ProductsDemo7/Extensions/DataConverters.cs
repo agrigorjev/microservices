@@ -4,6 +4,7 @@ using Region = MandaraDemoDTO.Region;
 using CustomTypes;
 using ProductsDemo7.Extensions;
 using MandaraDemoDTO.Contracts;
+using MandaraDemoDTO.Extensions;
 
 namespace ProductsDemo7.Extensions
 {
@@ -36,7 +37,8 @@ namespace ProductsDemo7.Extensions
                     IsAllowedForManualTradesDb = data.IsAllowedForManualTradesDb,
                     CurrencyGuId = Guid.Parse(data.CurrencyGuId),
                     RegionGuId = data.RegionGuId.toGuidNullable(),
-                    UnitGuid = Guid.Parse(data.UnitGuid)
+                    UnitGuid = Guid.Parse(data.UnitGuid),
+                    Status=data.Status.toStatus()
 
                 };
             }
@@ -54,6 +56,7 @@ namespace ProductsDemo7.Extensions
                 {
                     Id = Guid.Parse(data.Id),
                     IsoName = data.IsoName,
+                    Status = data.Status.toStatus()
                 };
             }
         }
@@ -72,6 +75,7 @@ namespace ProductsDemo7.Extensions
                     AllowOnlyMonthlyContractSize = data.AllowOnlyMonthlyContractSize,
                     DefaultPositionFactor = data.DefaultPositionFactor,
                     Name = data.Name,
+                    Status = data.Status.toStatus()
 
                 };
             }
@@ -88,6 +92,7 @@ namespace ProductsDemo7.Extensions
                 {
                     Id = Guid.Parse(data.Id),
                     Name = data.Name,
+                    Status = data.Status.toStatus()
                 };
             }
         }

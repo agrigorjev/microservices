@@ -89,17 +89,20 @@ message PriceUnitGrpc{
 	string Name=2;
     optional customtypes.DecimalValue DefaultPositionFactor=3;
     bool AllowOnlyMonthlyContractSize=4;
+	string Status=5;
 
 }
 
 message RegiontGrpc{
 	string Id=1;
 	string Name=2;
+	string Status=3;
 }
 
 message CurrencyGrpc{
 	string Id=1;
 	string isoName=2;
+	string Status=3;
 }
 
 message ProductGrpc{
@@ -128,6 +131,7 @@ message ProductGrpc{
 	optional CurrencyGrpc Currency =22;
 	optional PriceUnitGrpc PriceUnit =23;
 	optional RegiontGrpc Region =24;
+	string Status=25;
 	
 }
 

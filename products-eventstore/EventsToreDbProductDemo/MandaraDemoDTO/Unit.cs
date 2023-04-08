@@ -4,8 +4,11 @@ using MandaraDemoDTO.Contracts;
 
 namespace MandaraDemoDTO
 {
-    public partial class Unit: IReferece
+    public partial class Unit: IReference, IState
     {
+
+        private State _status = State.UNSPECIFIED;
+        public State Status { get => _status; set => _status = value; }
 
         public Guid Id { get; set; }
 

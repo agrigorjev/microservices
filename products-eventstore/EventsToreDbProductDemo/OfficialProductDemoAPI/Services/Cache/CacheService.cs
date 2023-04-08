@@ -11,6 +11,7 @@ using OfficialProductDemoAPI.Services.Contracts;
 using Optional;
 using System.Collections.Concurrent;
 using System.Net.Http.Json;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.JavaScript;
 using System.Security.Principal;
@@ -24,7 +25,7 @@ namespace OfficialProductDemoAPI.Services.Cache
 
 
 
-    public abstract class CacheService<T> : IDataService<T> where T:IReferece
+    public abstract class CacheService<T> : IDataService<T> where T:IReference,IState
     {
         protected ConcurrentDictionary<Guid, T> _cache = new ConcurrentDictionary<Guid, T>();
 
@@ -47,56 +48,48 @@ namespace OfficialProductDemoAPI.Services.Cache
         }
 
 
-        abstract protected T? FromEventData(EventRecord record);
-
-
-        public async Task EventHandler(StreamSubscription subscription, ResolvedEvent evnt, CancellationToken cancellationToken)
+        public void EventHandler(EventRecord evnt,string stream)
         {
-            await Task.Run(() =>
-            {
-                try
+          try
                 {
-                    var item = FromEventData(evnt.Event);
+                    var item = ObjectEvent<T>.fromEventData(evnt);
+                    //var item = FromEventData(evnt.Event);
                     if (item != null)
                     {
-                        switch (evnt.Event.EventType.toKnownEvent())
+                        switch (evnt.EventType.toKnownEvent())
                         {
                             case KnownEvents.Create:
-                                if (!_cache.TryAdd(item.Id, item))
+                                if (!_cache.TryAdd(item.Id, item.Subject))
                                 {
-                                    Console.WriteLine("Failed to add {0} with id {1}", evnt.OriginalStreamId, item.Id);
+                                    Console.WriteLine("Failed to add {0} with id {1}", stream, item.Id);
                                 }
                                 break;
 
                             case KnownEvents.Update:
-                                if (!_cache.TryUpdate(item.Id, item, _cache[item.Id]))
+                                if (!_cache.TryUpdate(item.Id, item.Subject, _cache[item.Id]))
                                 {
-                                    Console.WriteLine("Failed to update {0} with id {1}", evnt.OriginalStreamId, item.Id);
+                                    Console.WriteLine("Failed to update {0} with id {1}", stream, item.Id);
                                 }
                                 break;
                             case KnownEvents.Delete:
 
-                                Console.WriteLine("Delete not yet implemented");
+                                if (_cache.ContainsKey(item.Id))
+                                {
+                                    _cache[item.Id].Status = State.REMOVED;
+                                }
 
                                 break;
                             default:
-                                Console.WriteLine("Unknown event {0}", evnt.Event.EventType);
+                                Console.WriteLine("Unknown event {0}", evnt.EventType);
                                 break;
                         }
                     }
-
-                }
+                    Console.Out.WriteLineAsync(string.Format("{0} [{1}],{2}", DateTime.Now,stream, new string(Encoding.UTF8.GetString(evnt.Data.ToArray()))));
+                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Error {0}", ex.Message);
                 }
-            }, cancellationToken).ContinueWith(t => LogEvent(subscription, evnt, cancellationToken));
-        }
-
-
-        async Task LogEvent(StreamSubscription subscription, ResolvedEvent evnt, CancellationToken cancellationToken)
-        {
-            await Console.Out.WriteLineAsync(string.Format("{0} [{1}],{2}", DateTime.Now, subscription.SubscriptionId, new string(Encoding.UTF8.GetString(evnt.Event.Data.ToArray()))));
         }
 
         public async Task InitialLoad()
@@ -104,7 +97,8 @@ namespace OfficialProductDemoAPI.Services.Cache
             try
             {
 
-                var productsSubs = _client.ReadStreamAsync(Direction.Forwards, this.StreamName, StreamPosition.Start);
+                var productsSubs =
+                    _client.ReadStreamAsync(Direction.Forwards, this.StreamName, StreamPosition.Start);
 
                 StreamPosition opPosition = 0;
 
@@ -112,17 +106,28 @@ namespace OfficialProductDemoAPI.Services.Cache
                 {
                     throw new NoStreamException(this.StreamName);
                 }
-                await foreach (var e in productsSubs)
+                else
                 {
-                    opPosition = e.OriginalEventNumber;
-                    var op = this.FromEventData(e.Event);// JsonSerializer.Deserialize<OfficialProduct>(Encoding.UTF8.GetString(e.Event.Data.ToArray()));
-                    if (op!=null)
+
+                    productsSubs.ToObservable<ResolvedEvent>()
+                    .Aggregate(opPosition, (_, e) =>
                     {
-                        _cache.AddOrUpdate(op.Id, op, (key, oldValue) => op);
-                    }
+                        EventHandler(e.Event, e.OriginalEvent.EventStreamId);
+                        return e.OriginalEventNumber;
+                    })
+                    .SubscribeOn(Scheduler.Immediate)
+                    .Subscribe(
+                        e =>
+                        {
+                            _client
+                            .SubscribeToStreamAsync(StreamName,
+                                FromStream.After(e),
+                                (stream, evt, token) => Task.Run(() => EventHandler(evt.Event, evt.OriginalEvent.EventStreamId)));
+                                Console.WriteLine("Load {0}: {1} ", StreamName, _cache.Count);
+                          
+                        }
+                        );
                 }
-                _ = await _client.SubscribeToStreamAsync(StreamName, FromStream.After(opPosition), EventHandler);
-                Console.WriteLine("Initial load {0}: {1} ",StreamName,_cache.Count);
             }
             catch (Exception ex)
             {

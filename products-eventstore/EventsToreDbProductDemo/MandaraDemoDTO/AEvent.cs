@@ -1,4 +1,6 @@
-﻿using MandaraDemoDTO.Contracts;
+﻿using EventStore.Client;
+using MandaraDemoDTO.Contracts;
+using MandaraDemoDTO.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +12,7 @@ using System.Threading.Tasks;
 namespace MandaraDemoDTO
 {
 
-    class DeleteModel: IReferece
+    public class DeleteModel: IReference
     {
 
         private Guid _Id = Guid.Empty;
@@ -100,4 +102,88 @@ namespace MandaraDemoDTO
 
         public string User => Name;
     }
+
+
+    public class ObjectEvent<T> : IEventData where T : IReference
+    {
+        private Guid _id;
+
+        public Guid Id => _id;
+
+        private KnownEvents _event;
+
+        public KnownEvents Event => _event;
+
+        private T _subject;
+
+        public T Subject { get => _subject; }
+
+        public byte[] Data => _event==KnownEvents.Delete? JsonSerializer.SerializeToUtf8Bytes<DeleteModel>(new DeleteModel() { Id=_id}) : JsonSerializer.SerializeToUtf8Bytes<T>(_subject);
+
+        private string _metadataUser;
+        public string User => _metadataUser;
+
+        private ObjectEvent(){
+        }
+        public static ObjectEvent<T> Create(T subject,string userName)
+        {
+            subject.Id=Guid.NewGuid();
+            return new ObjectEvent<T>() { _id = subject.Id, _subject = subject, _metadataUser = userName ?? string.Empty, _event = KnownEvents.Create };
+        }
+
+        public static ObjectEvent<T> Update(T subject, string userName)
+        {
+            return new ObjectEvent<T>() { _id = subject.Id, _subject = subject, _metadataUser = userName ?? string.Empty, _event = KnownEvents.Update };
+        }
+
+        public static ObjectEvent<T> Delete(T subject, string userName)
+        {
+            return new ObjectEvent<T> () { _id = subject.Id, _event = KnownEvents.Delete, _metadataUser = userName ?? string.Empty };
+        }
+
+        public static ObjectEvent<T> fromEventData(EventRecord record)
+        {
+            try
+            {
+                var jsonContent = Encoding.UTF8.GetString(record.Data.ToArray());
+                MetadataModel? metadataModel = null;
+                if (record.Metadata.Length > 0)
+                {
+                    try
+                    {
+                       metadataModel = JsonSerializer.Deserialize<MetadataModel>(record.Metadata.ToArray());
+                    }
+                    catch { }
+                }
+                Guid idFrom=JsonNode.Parse(jsonContent)["Id"].GetValue<Guid>();
+
+                if (idFrom!=Guid.Empty)
+                {
+                    var eType=record.EventType.toKnownEvent();
+                    if (eType == KnownEvents.Delete)
+                    {
+                        return new ObjectEvent<T>() { _id = idFrom, _event = KnownEvents.Delete, _metadataUser = metadataModel?.User };
+                    }
+                    else
+                    {
+                        return new ObjectEvent<T>() { _id = idFrom, _subject= JsonSerializer.Deserialize<T>(jsonContent), _event =eType, _metadataUser = metadataModel?.User };
+                    }
+                    
+                }
+                else
+                {
+                    throw new WrongEventFormatException();
+                }
+            }
+            catch 
+            {
+                throw;
+            }
+        }
+
+       
+
+
+    }
+
 }

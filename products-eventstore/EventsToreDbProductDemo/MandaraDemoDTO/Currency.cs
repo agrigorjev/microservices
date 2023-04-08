@@ -6,9 +6,12 @@ using MandaraDemoDTO.Contracts;
 
 namespace MandaraDemoDTO
 {
-    public partial class Currency: IReferece
+    public partial class Currency: IReference, IState
     {
- 
+
+        private State _status = State.UNSPECIFIED;
+        public State Status { get => _status; set => _status = value; }
+
         public Guid Id { get; set; }
 
         private string _isoName;

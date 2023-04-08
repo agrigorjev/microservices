@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MandaraDemoDTO.Contracts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -49,6 +50,20 @@ namespace MandaraDemoDTO.Extensions
                 default:
                     return "UNKNOWN";
             }
+        }
+
+        public static State toStatus(this string? value)
+        {
+            if (value != null)
+            {
+                if (value.EqualIgnoreCase("removed"))
+                {
+                    return State.REMOVED;
+                }
+               
+            }
+            return State.UNSPECIFIED;
+
         }
     }
 }

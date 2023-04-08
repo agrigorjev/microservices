@@ -6,8 +6,11 @@ using MandaraDemoDTO.Contracts;
 
 namespace MandaraDemoDTO
 {
-    public partial class Region: IReferece
-    {
+    public partial class Region: IReference, IState
+    { 
+        private State _status = State.UNSPECIFIED;
+        public State Status { get => _status; set => _status = value; }
+    
         public Guid Id { get; set; }
 
         [StringLength(50)]

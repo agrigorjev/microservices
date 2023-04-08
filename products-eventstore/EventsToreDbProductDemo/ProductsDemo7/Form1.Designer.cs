@@ -28,6 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
+            DevExpress.XtraGrid.GridFormatRule gridFormatRule1 = new DevExpress.XtraGrid.GridFormatRule();
+            DevExpress.XtraEditors.FormatConditionRuleExpression formatConditionRuleExpression1 = new DevExpress.XtraEditors.FormatConditionRuleExpression();
+            colStatus = new DevExpress.XtraGrid.Columns.GridColumn();
             statusStrip = new StatusStrip();
             viewState = new ToolStripStatusLabel();
             gridView1 = new DevExpress.XtraGrid.Views.Grid.GridView();
@@ -67,6 +70,15 @@
             ((System.ComponentModel.ISupportInitialize)gridControl1).BeginInit();
             SuspendLayout();
             // 
+            // colStatus
+            // 
+            colStatus.Caption = "Status";
+            colStatus.FieldName = "Status";
+            colStatus.Name = "colStatus";
+            colStatus.OptionsEditForm.Visible = DevExpress.Utils.DefaultBoolean.False;
+            colStatus.Visible = true;
+            colStatus.VisibleIndex = 21;
+            // 
             // statusStrip
             // 
             statusStrip.Items.AddRange(new ToolStripItem[] { viewState });
@@ -86,7 +98,17 @@
             // 
             // gridView1
             // 
-            gridView1.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] { colId, colName, colDisplayName, colMappingColumn, colApplySignVerification, colApplyFractionPartVerification, colEpsilon, colApplyMissingPointVerification, colMissingPointAccuracy, colVoiceName, colPublishToUms, colNameOnUms, colUnitToBarrelConversionFactor, colprice_expiration_period, colspread_price_expiration_period, coldesk_id, colSettlementProductId, colIsAllowedForManualTradesDb, colCurrencyGuId, colRegionGuId, colUnitGuid, colCurrency, colRegion, colPriceUnit });
+            gridView1.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] { colId, colName, colDisplayName, colMappingColumn, colApplySignVerification, colApplyFractionPartVerification, colEpsilon, colApplyMissingPointVerification, colMissingPointAccuracy, colVoiceName, colPublishToUms, colNameOnUms, colUnitToBarrelConversionFactor, colprice_expiration_period, colspread_price_expiration_period, coldesk_id, colSettlementProductId, colIsAllowedForManualTradesDb, colCurrencyGuId, colRegionGuId, colUnitGuid, colCurrency, colRegion, colPriceUnit, colStatus });
+            gridFormatRule1.ApplyToRow = true;
+            gridFormatRule1.Column = colStatus;
+            gridFormatRule1.Name = "Format0";
+            formatConditionRuleExpression1.Appearance.BackColor = Color.Red;
+            formatConditionRuleExpression1.Appearance.ForeColor = Color.White;
+            formatConditionRuleExpression1.Appearance.Options.UseBackColor = true;
+            formatConditionRuleExpression1.Appearance.Options.UseForeColor = true;
+            formatConditionRuleExpression1.Expression = "[Status] = 'REMOVED'";
+            gridFormatRule1.Rule = formatConditionRuleExpression1;
+            gridView1.FormatRules.Add(gridFormatRule1);
             gridView1.GridControl = gridControl1;
             gridView1.Name = "gridView1";
             gridView1.OptionsBehavior.AllowDeleteRows = DevExpress.Utils.DefaultBoolean.True;
@@ -375,5 +397,6 @@
         private DevExpress.XtraEditors.Repository.RepositoryItemLookUpEdit currencyEditor;
         private DevExpress.XtraEditors.Repository.RepositoryItemLookUpEdit regionEditor;
         private DevExpress.XtraEditors.Repository.RepositoryItemLookUpEdit priceUnitEditor;
+        private DevExpress.XtraGrid.Columns.GridColumn colStatus;
     }
 }

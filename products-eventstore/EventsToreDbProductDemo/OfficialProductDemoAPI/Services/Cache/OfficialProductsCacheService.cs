@@ -21,32 +21,32 @@ namespace OfficialProductDemoAPI.Services.Cache
 
         public override string StreamName => _streamName;
 
-        protected override OfficialProduct? FromEventData(EventRecord record)
-        {
-            var jsonContent = Encoding.UTF8.GetString(record.Data.ToArray());
-            var jObject = JObject.Parse(jsonContent);
-            Guid id = Guid.Empty;
-            Guid.TryParse(jObject.SelectToken("Id").ToString() ?? "", out id);
-            var serializer = Newtonsoft.Json.JsonSerializer.Create();
-            switch (record.EventType.toKnownEvent())
-            {
-                case KnownEvents.Create:
-                    if (id != Guid.Empty && _cache.ContainsKey(id))
-                    {
-                        Console.WriteLine("Object already created with id {0}", id);
-                        return null;
-                    }
-                    return JsonConvert.DeserializeObject<OfficialProduct>(jsonContent);
-                case KnownEvents.Update:
-                    return JsonConvert.DeserializeObject<OfficialProduct>(jsonContent);
-                default:
-                    Console.WriteLine("Unknown event type {0}", record.EventType);
-                    return null;
-            }
+        //protected override OfficialProduct? FromEventData(EventRecord record)
+        //{
+        //    var jsonContent = Encoding.UTF8.GetString(record.Data.ToArray());
+        //    var jObject = JObject.Parse(jsonContent);
+        //    Guid id = Guid.Empty;
+        //    Guid.TryParse(jObject.SelectToken("Id").ToString() ?? "", out id);
+        //    var serializer = Newtonsoft.Json.JsonSerializer.Create();
+        //    switch (record.EventType.toKnownEvent())
+        //    {
+        //        case KnownEvents.Create:
+        //            if (id != Guid.Empty && _cache.ContainsKey(id))
+        //            {
+        //                Console.WriteLine("Object already created with id {0}", id);
+        //                return null;
+        //            }
+        //            return JsonConvert.DeserializeObject<OfficialProduct>(jsonContent);
+        //        case KnownEvents.Update:
+        //            return JsonConvert.DeserializeObject<OfficialProduct>(jsonContent);
+        //        default:
+        //            Console.WriteLine("Unknown event type {0}", record.EventType);
+        //            return null;
+        //    }
 
 
 
-        }
+        //}
 
 
     }
@@ -62,32 +62,32 @@ namespace OfficialProductDemoAPI.Services.Cache
 
         public override string StreamName => _streamName;
 
-        protected override Currency? FromEventData(EventRecord record)
-        {
-            var jsonContent = Encoding.UTF8.GetString(record.Data.ToArray());
-            var jObject = JObject.Parse(jsonContent);
-            Guid id = Guid.Empty;
-            Guid.TryParse(jObject.SelectToken("Id").ToString() ?? "", out id);
-            var serializer = Newtonsoft.Json.JsonSerializer.Create();
-            switch (record.EventType.toKnownEvent())
-            {
-                case KnownEvents.Create:
-                    if (id != Guid.Empty && _cache.ContainsKey(id))
-                    {
-                        Console.WriteLine("Object already created with id {0}", id);
-                        return null;
-                    }
-                    return JsonConvert.DeserializeObject<Currency>(jsonContent);
-                case KnownEvents.Update:
-                    return JsonConvert.DeserializeObject<Currency>(jsonContent);
-                default:
-                    Console.WriteLine("Unknown event type {0}", record.EventType);
-                    return null;
-            }
+        //protected override Currency? FromEventData(EventRecord record)
+        //{
+        //    var jsonContent = Encoding.UTF8.GetString(record.Data.ToArray());
+        //    var jObject = JObject.Parse(jsonContent);
+        //    Guid id = Guid.Empty;
+        //    Guid.TryParse(jObject.SelectToken("Id").ToString() ?? "", out id);
+        //    var serializer = Newtonsoft.Json.JsonSerializer.Create();
+        //    switch (record.EventType.toKnownEvent())
+        //    {
+        //        case KnownEvents.Create:
+        //            if (id != Guid.Empty && _cache.ContainsKey(id))
+        //            {
+        //                Console.WriteLine("Object already created with id {0}", id);
+        //                return null;
+        //            }
+        //            return JsonConvert.DeserializeObject<Currency>(jsonContent);
+        //        case KnownEvents.Update:
+        //            return JsonConvert.DeserializeObject<Currency>(jsonContent);
+        //        default:
+        //            Console.WriteLine("Unknown event type {0}", record.EventType);
+        //            return null;
+        //    }
 
 
 
-        }
+        //}
 
 
     }
@@ -103,32 +103,32 @@ namespace OfficialProductDemoAPI.Services.Cache
 
         public override string StreamName => _streamName;
 
-        protected override Unit? FromEventData(EventRecord record)
-        {
-            var jsonContent = Encoding.UTF8.GetString(record.Data.ToArray());
-            var jObject = JObject.Parse(jsonContent);
-            Guid id = Guid.Empty;
-            Guid.TryParse(jObject.SelectToken("Id").ToString() ?? "", out id);
-            var serializer = Newtonsoft.Json.JsonSerializer.Create();
-            switch (record.EventType.toKnownEvent())
-            {
-                case KnownEvents.Create:
-                    if (id != Guid.Empty && _cache.ContainsKey(id))
-                    {
-                        Console.WriteLine("Object already created with id {0}", id);
-                        return null;
-                    }
-                    return JsonConvert.DeserializeObject<Unit>(jsonContent);
-                case KnownEvents.Update:
-                    return JsonConvert.DeserializeObject<Unit>(jsonContent);
-                default:
-                    Console.WriteLine("Unknown event type {0}", record.EventType);
-                    return null;
-            }
+        //protected override Unit? FromEventData(EventRecord record)
+        //{
+        //    var jsonContent = Encoding.UTF8.GetString(record.Data.ToArray());
+        //    var jObject = JObject.Parse(jsonContent);
+        //    Guid id = Guid.Empty;
+        //    Guid.TryParse(jObject.SelectToken("Id").ToString() ?? "", out id);
+        //    var serializer = Newtonsoft.Json.JsonSerializer.Create();
+        //    switch (record.EventType.toKnownEvent())
+        //    {
+        //        case KnownEvents.Create:
+        //            if (id != Guid.Empty && _cache.ContainsKey(id))
+        //            {
+        //                Console.WriteLine("Object already created with id {0}", id);
+        //                return null;
+        //            }
+        //            return JsonConvert.DeserializeObject<Unit>(jsonContent);
+        //        case KnownEvents.Update:
+        //            return JsonConvert.DeserializeObject<Unit>(jsonContent);
+        //        default:
+        //            Console.WriteLine("Unknown event type {0}", record.EventType);
+        //            return null;
+        //    }
 
 
 
-        }
+        //}
 
 
     }
@@ -145,32 +145,32 @@ namespace OfficialProductDemoAPI.Services.Cache
 
         public override string StreamName => _streamName;
 
-        protected override Region? FromEventData(EventRecord record)
-        {
-            var jsonContent = Encoding.UTF8.GetString(record.Data.ToArray());
-            var jObject = JObject.Parse(jsonContent);
-            Guid id = Guid.Empty;
-            Guid.TryParse(jObject.SelectToken("Id").ToString() ?? "", out id);
-            var serializer = Newtonsoft.Json.JsonSerializer.Create();
-            switch (record.EventType.toKnownEvent())
-            {
-                case KnownEvents.Create:
-                    if (id != Guid.Empty && _cache.ContainsKey(id))
-                    {
-                        Console.WriteLine("Object already created with id {0}", id);
-                        return null;
-                    }
-                    return JsonConvert.DeserializeObject<Region>(jsonContent);
-                case KnownEvents.Update:
-                    return JsonConvert.DeserializeObject<Region>(jsonContent);
-                default:
-                    Console.WriteLine("Unknown event type {0}", record.EventType);
-                    return null;
-            }
+        //protected override Region? FromEventData(EventRecord record)
+        //{
+        //    var jsonContent = Encoding.UTF8.GetString(record.Data.ToArray());
+        //    var jObject = JObject.Parse(jsonContent);
+        //    Guid id = Guid.Empty;
+        //    Guid.TryParse(jObject.SelectToken("Id").ToString() ?? "", out id);
+        //    var serializer = Newtonsoft.Json.JsonSerializer.Create();
+        //    switch (record.EventType.toKnownEvent())
+        //    {
+        //        case KnownEvents.Create:
+        //            if (id != Guid.Empty && _cache.ContainsKey(id))
+        //            {
+        //                Console.WriteLine("Object already created with id {0}", id);
+        //                return null;
+        //            }
+        //            return JsonConvert.DeserializeObject<Region>(jsonContent);
+        //        case KnownEvents.Update:
+        //            return JsonConvert.DeserializeObject<Region>(jsonContent);
+        //        default:
+        //            Console.WriteLine("Unknown event type {0}", record.EventType);
+        //            return null;
+        //    }
 
 
 
-        }
+        //}
 
 
     }

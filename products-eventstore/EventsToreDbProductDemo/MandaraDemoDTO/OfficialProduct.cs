@@ -7,9 +7,11 @@ using MandaraDemoDTO.Contracts;
 
 namespace MandaraDemoDTO
 {
-    public partial class OfficialProduct:IReferece
+    public partial class OfficialProduct:IReference,IState
     {
 
+        private State _status;
+        public State Status { get => _status; set => _status=value; }
         public Guid Id { get; set; }
 
         [StringLength(255)]

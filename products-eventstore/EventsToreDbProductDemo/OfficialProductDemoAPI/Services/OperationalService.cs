@@ -23,10 +23,10 @@ namespace OfficialProductDemoAPI.Services
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await _currencyCache.InitialLoad();
-            await _unitCache.InitialLoad();
-            await _regionsCache.InitialLoad();
-            await _productsCache.InitialLoad();
+            await _currencyCache.InitialLoad()
+                .ContinueWith(r => _unitCache.InitialLoad())
+                .ContinueWith(r => _regionsCache.InitialLoad())
+                 .ContinueWith(r => _productsCache.InitialLoad());
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

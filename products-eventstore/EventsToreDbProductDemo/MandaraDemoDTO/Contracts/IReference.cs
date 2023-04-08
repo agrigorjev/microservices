@@ -1,6 +1,6 @@
 ﻿namespace MandaraDemoDTO.Contracts
 {
-    public interface IReferece
+    public interface IReference
     {
         Guid Id { get; set; }
     }

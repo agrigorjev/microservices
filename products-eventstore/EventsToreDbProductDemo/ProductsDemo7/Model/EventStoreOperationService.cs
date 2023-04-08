@@ -30,25 +30,20 @@ namespace ProductsDemo7.Model
 
         public  IObservable<IWriteResult> deleteProducts(OfficialProduct product)
         {
-            DeleteEvent de = new(product.Id) { Name = System.Security.Principal.WindowsIdentity.GetCurrent().Name };
-            return exec(de);
-
+            return exec(ObjectEvent<OfficialProduct>.Delete(product, System.Security.Principal.WindowsIdentity.GetCurrent().Name));
         }
 
         public IObservable<IWriteResult> createProducts(OfficialProduct product)
         {
-            NewOfficialProductEvent de = new(product) { Name = System.Security.Principal.WindowsIdentity.GetCurrent().Name };
-            return exec(de);
+            return exec(ObjectEvent<OfficialProduct>.Create(product, System.Security.Principal.WindowsIdentity.GetCurrent().Name));
 
         }
 
         public IObservable<IWriteResult> updateProducts(OfficialProduct product)
         {
-            UpdateOfficialProductEvent de = new(product) { Name = System.Security.Principal.WindowsIdentity.GetCurrent().Name };
-            return exec(de);
+            return exec(ObjectEvent<OfficialProduct>.Update(product, System.Security.Principal.WindowsIdentity.GetCurrent().Name));
 
         }
-
 
         private IObservable<IWriteResult> exec(IEventData de)
         {

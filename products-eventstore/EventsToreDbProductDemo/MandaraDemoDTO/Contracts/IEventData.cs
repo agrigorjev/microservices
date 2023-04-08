@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EventStore.Client;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 namespace MandaraDemoDTO.Contracts
 {
 
-    class MetadataModel
+    public class MetadataModel
     {
 
         public string User { get; set; }
@@ -26,5 +27,12 @@ namespace MandaraDemoDTO.Contracts
 
         byte[] MetaData => JsonSerializer.SerializeToUtf8Bytes(new MetadataModel() { User=User});
 
+        public EventData toEventData()
+        {
+            return new EventData(Uuid.FromGuid(Guid.NewGuid()), Event.ToString(), Data, MetaData);
+        }
+
     }
+
+
 }

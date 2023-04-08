@@ -68,9 +68,10 @@ namespace ProductsDemo7
 
         private void gridView1_RowDeleted(object sender, DevExpress.Data.RowDeletedEventArgs e)
         {
-            var victim=e.Row as OfficialProduct;
+            var victim = e.Row as OfficialProduct;
 
-            if(victim != null && !victim.isNew) {
+            if (victim != null && !victim.isNew)
+            {
 
                 pw.DoRefreshList(storeService.deleteProducts(victim));
             }
