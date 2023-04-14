@@ -8,10 +8,13 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using DevExpress.Mvvm.Native;
+using DevExpress.Pdf.Native.BouncyCastle.Asn1.X509.Qualified;
 using DevExpress.Xpo;
 using DevExpress.XtraEditors.Design;
 using EventStore.Client;
+using Grpc.Core;
 using Grpc.Net.Client;
+using MandaraDemo.GrpcDefinitions;
 using MandaraDemoDTO;
 using ProductsDemo.Client;
 using ProductsDemo7.Extensions;
@@ -29,9 +32,11 @@ namespace ProductsDemo.Model
         private CurrencyDataConverter _currencyDataConverter = new CurrencyDataConverter();
         private RegionDataConverter _regionDataConverter = new RegionDataConverter();
 
+        private Subject<OfficialProduct> _officialProductSubject;
+
         private bool _loading = false;
 
-           public string StatusText
+        public string StatusText
         {
             get
             {
@@ -40,6 +45,8 @@ namespace ProductsDemo.Model
                 else return "Loaded " + _products.Count.ToString();
             }
         }
+
+        public OfficialProduct ById(Guid id) => _products[id];
 
         public bool Loading
         {
@@ -57,13 +64,13 @@ namespace ProductsDemo.Model
                 }
             }
         }
-        private BindingList<OfficialProduct> _products;
+        private ConcurrentDictionary<Guid,OfficialProduct> _products=new ConcurrentDictionary<Guid, OfficialProduct>();
 
         private ConcurrentDictionary<Guid,Currency> _currencies=new ConcurrentDictionary<Guid, Currency>();
         private ConcurrentDictionary<Guid, Unit> _priceUnits = new ConcurrentDictionary<Guid, Unit>();
         private ConcurrentDictionary<Guid, Region> _regions = new ConcurrentDictionary<Guid, Region>();
 
-        public BindingList<OfficialProduct> Products { get { return _products; } }
+        public ICollection<OfficialProduct> Products { get { return _products.Values; } }
 
         public BindingList<Currency> CurrencySrc { get { return new BindingList<Currency>(_currencies.Values.ToList()); } }
         public BindingList<Unit> PriceUnitSrc { get { return new BindingList<Unit>(_priceUnits.Values.ToList()); } }
@@ -90,69 +97,155 @@ namespace ProductsDemo.Model
             }
         }
 
+        public Subject<OfficialProduct> StreamProducts => _officialProductSubject;
 
         public ProductView(string serviceUrl)
         {
-            _products = new BindingList<OfficialProduct>();
             _client = new ProductClientImpl(GrpcChannel.ForAddress(serviceUrl));
             DoLoadAll();
+            _client.EventStream.ReadAllAsync().ToObservable<ServiceEventMessage>()
+                 .Subscribe(x => HandleServiceEventMessage(x));
+            _officialProductSubject = new Subject<OfficialProduct>();
         }
 
-        public void DoRefreshList(IObservable<IWriteResult> before)
-        {
-            Subject<DateTime> subject = new();
-            var act = 
+        //public void DoRefreshList(IObservable<IWriteResult> before)
+        //{
+        //    Subject<DateTime> subject = new();
+        //    var act = 
                 
-                _client.loadAll()
-              .Do(result =>
-              {
-                  _products.Clear();
+        //        _client.loadAll()
+        //      .Do(result =>
+        //      {
+        //          _products.Clear();
 
-                  result.Select(p => officialProductConverter.Convert(p)).Where(p => p != null)
-                   .ToList()
-                   .ForEach(p => {
-                     if (_currencies.TryGetValue(p.CurrencyGuId, out Currency currency))
-                     {
-                         p.Currency = currency;
-                     }
-                     if (_priceUnits.TryGetValue(p.UnitGuid, out Unit unit))
-                     {
-                         p.PriceUnit = unit;
-                     }
-                     if (p.RegionGuId != null && _regions.TryGetValue(p.CurrencyGuId, out Region region))
-                     {
-                         p.Region = region;
-                     }
-                     _products.Add(p);
+        //          result.Select(p => officialProductConverter.Convert(p)).Where(p => p != null)
+        //           .ToList()
+        //           .ForEach(p => {
+        //             if (_currencies.TryGetValue(p.CurrencyGuId, out Currency currency))
+        //             {
+        //                 p.Currency = currency;
+        //             }
+        //             if (_priceUnits.TryGetValue(p.UnitGuid, out Unit unit))
+        //             {
+        //                 p.PriceUnit = unit;
+        //             }
+        //             if (p.RegionGuId != null && _regions.TryGetValue(p.CurrencyGuId, out Region region))
+        //             {
+        //                 p.Region = region;
+        //             }
+        //             _products.Add(p);
+        //         });
+        //          Debug.Print("Done loading OP [{0}]", DateTime.Now);
+        //          Loading = false;
+        //          LastError = null;
+        //          OnProductsLoaded();
+        //      })
+        //     .RetryWithBackoffStrategy(int.MaxValue, n => TimeSpan.FromSeconds(2), ex =>
+        //     {
+        //         Debug.WriteLine("Retry " + counter++.ToString() + " " + DateTime.Now.ToString());
+        //         LastError = ex;
+        //         Loading = false;
+        //         return true;
+
+        //     });
+
+        //    before
+        //        .Select(x=>true)
+        //        .Delay(TimeSpan.FromSeconds(2))
+        //        .Concat(act.Select(x=>true))
+        //        .DelaySubscription(TimeSpan.FromSeconds(2))
+        //       .Subscribe();
+
+
+        //}
+
+
+        private void HandleServiceEventMessage(ServiceEventMessage message)
+        {
+            switch (message.EventType)
+            {
+                case "OfficialProduct":
+                    {
+                        message.EventPayload.ForEach(payloadItem =>
+                        {
+                            if (payloadItem.StartsWith("Warmup"))
+                            {
+                                loadAllProducts();
+                            }
+                            else if(Guid.TryParse(payloadItem,out Guid toReload))
+                            {
+                                loadSingleProduct(toReload);
+                            }
+                        });
+                    }
+                    break;
+                default:
+                    Debug.Print(message.EventType);
+                    break;
+            }
+        }
+
+        private OfficialProduct enrichOfficialProduct(OfficialProduct p)
+        {
+            if (p != null)
+            {
+                if (_currencies.TryGetValue(p.CurrencyGuId, out Currency currency))
+                {
+                    p.Currency = currency;
+                }
+                if (_priceUnits.TryGetValue(p.UnitGuid, out Unit unit))
+                {
+                    p.PriceUnit = unit;
+                }
+                if (p.RegionGuId != null && _regions.TryGetValue(p.CurrencyGuId, out Region region))
+                {
+                    p.Region = region;
+                }
+            }
+            return p;
+        }
+        private void loadSingleProduct(Guid toLoad)
+        {
+            Observable.FromAsync(_ => _client.SingleProduct(toLoad).ResponseAsync)
+                 .Where(p=>p.Product!=null)
+                 .Select(p => enrichOfficialProduct(officialProductConverter.Convert(p.Product)))
+                 .Subscribe(p =>
+                 {
+                     _products.AddOrUpdate(p.Id, p, (k, v) => p);
+                     _officialProductSubject.OnNext(p);
                  });
-                  Debug.Print("Done loading OP [{0}]", DateTime.Now);
-                  Loading = false;
-                  LastError = null;
-                  OnProductsLoaded();
-              })
-             .RetryWithBackoffStrategy(int.MaxValue, n => TimeSpan.FromSeconds(2), ex =>
-             {
-                 Debug.WriteLine("Retry " + counter++.ToString() + " " + DateTime.Now.ToString());
-                 LastError = ex;
-                 Loading = false;
-                 return true;
+        }
+        private  void loadAllProducts()
+        {
+             _client.loadAll()
+               .Do(result =>
+               {
+                   _products.Clear();
+                    result.Select(p => enrichOfficialProduct(p: officialProductConverter.Convert(p))).Where(p => p != null)
+                   .ForEach(p=>
+                   {
+                       _products.TryAdd(p.Id, p);
+                       _officialProductSubject.OnNext(p);
+                   });
+                   Loading = false;
+                   LastError = null;
+                   OnProductsLoaded();
+               })
+               .RetryWithBackoffStrategy(int.MaxValue, n => TimeSpan.FromSeconds(2), ex =>
+               {
+                   Debug.WriteLine("Retry " + counter++.ToString() + " " + DateTime.Now.ToString());
+                   LastError = ex;
+                   Loading = false;
+                   return true;
 
-             });
-
-            before
-                .Select(x=>true)
-                .Delay(TimeSpan.FromSeconds(2))
-                .Concat(act.Select(x=>true))
-                .DelaySubscription(TimeSpan.FromSeconds(2))
-               .Subscribe();
-
-
+               })
+              .Subscribe();
         }
 
         private void DoLoadAll()
         {
             counter++;
-            Console.WriteLine("dome +" + counter.ToString() + " " + DateTime.Now.ToString());
+            Debug.Print("done +" + counter.ToString() + " " + DateTime.Now.ToString());
 
             Loading = true;
 
@@ -196,41 +289,9 @@ namespace ProductsDemo.Model
 
                 }).Subscribe();
 
-                 _client.loadAll()
-                .Do(result =>
-                {
-                    _products.Clear();
-
-                    result.Select(p=>officialProductConverter.Convert(p)).Where(p=>p!=null)
-                    .ToList()
-                    .ForEach(p => {
-                        if(_currencies.TryGetValue(p.CurrencyGuId, out Currency currency)){
-                            p.Currency = currency;
-                        }
-                        if ( _priceUnits.TryGetValue(p.UnitGuid, out Unit unit))
-                        {
-                            p.PriceUnit = unit;
-                        }
-                        if ( p.RegionGuId != null && _regions.TryGetValue(p.CurrencyGuId, out Region region))
-                        {
-                            p.Region = region;
-                        }
-                        _products.Add(p);
-                        });
-                    Loading = false;
-                    LastError = null;
-                    OnProductsLoaded();
-                })
-                .RetryWithBackoffStrategy(int.MaxValue, n=>TimeSpan.FromSeconds(2), ex =>
-                {
-                    Debug.WriteLine("Retry " + counter++.ToString() + " " + DateTime.Now.ToString());
-                    LastError = ex;
-                    Loading = false;
-                    return true;
-
-                })
-               .Subscribe();
+            loadAllProducts();
         }
+
 
         public event EventHandler? ProductsLoaded;
 
@@ -250,4 +311,6 @@ namespace ProductsDemo.Model
            _client.Dispose();
         }
     }
+
+    
 }

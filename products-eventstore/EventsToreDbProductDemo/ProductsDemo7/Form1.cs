@@ -1,11 +1,12 @@
+using DevExpress.Mvvm.Native;
 using DevExpress.XtraEditors;
 using MandaraDemoDTO;
+using Newtonsoft.Json;
 using ProductsDemo.Model;
 using ProductsDemo7.Model;
 using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
-using System.Windows.Controls;
 
 namespace ProductsDemo7
 {
@@ -13,7 +14,7 @@ namespace ProductsDemo7
     {
 
         ProductView pw;
-        BindingSource productsSource;
+        BindingList<OfficialProduct> _productsSource;
         private readonly EventStoreOperationService storeService;
         public Form1()
         {
@@ -23,8 +24,31 @@ namespace ProductsDemo7
             this.viewState.Text = pw.StatusText;
             gridControl1.HandleCreated += GridControl1_HandleCreated;
             storeService = new EventStoreOperationService();
+            _productsSource = new BindingList<OfficialProduct>();
+            gridControl1.DataSource = _productsSource;
+            gridView1.EditFormHidden += GridView1_EditFormHidden;
+
+            pw.StreamProducts.Subscribe(p =>
+                gridControl1.BeginInvoke(new Action(() =>
+                {
+                    var exists = _productsSource.Select((pp, index) => new { pp, index }).FirstOrDefault(el => el.pp.Id == p.Id);
+                    if (exists != null)
+                    {
+                        _productsSource[exists.index] = p;
+                    }
+                    else
+                    {
+                        _productsSource.Add(p);
+                    }
+                }))
+            );
+
         }
 
+        private void GridView1_EditFormHidden(object sender, DevExpress.XtraGrid.Views.Grid.EditFormHiddenEventArgs e)
+        {
+            _inEdit = null;
+        }
         private void GridControl1_HandleCreated(object? sender, EventArgs e)
         {
             pw.PropertyChanged += Pw_PropertyChanged;
@@ -35,18 +59,14 @@ namespace ProductsDemo7
         {
             gridControl1.BeginInvoke(new Action(() =>
             {
-                gridControl1.DataSource = new BindingList<OfficialProduct>(pw.Products);
+                //_productsSource.Clear();
+                //pw.Products.ForEach(p => _productsSource.Add(p));
                 currencyEditor.DataSource = pw.CurrencySrc;
                 priceUnitEditor.DataSource = pw.PriceUnitSrc;
                 regionEditor.DataSource = pw.RegionsSrc;
             }));
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-
-        }
 
         private void Pw_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -61,10 +81,6 @@ namespace ProductsDemo7
             }
         }
 
-        private void gridControl1_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void gridView1_RowDeleted(object sender, DevExpress.Data.RowDeletedEventArgs e)
         {
@@ -73,7 +89,7 @@ namespace ProductsDemo7
             if (victim != null && !victim.isNew)
             {
 
-                pw.DoRefreshList(storeService.deleteProducts(victim));
+                storeService.deleteProducts(victim).Subscribe(wr => Debug.Print("Delete done {0}", wr.LogPosition));
             }
         }
 
@@ -96,14 +112,19 @@ namespace ProductsDemo7
         private void gridView1_RowUpdated(object sender, DevExpress.XtraGrid.Views.Base.RowObjectEventArgs e)
         {
             var victim = e.Row as OfficialProduct;
+
+
             if (victim == null) return;
             if (!victim.isNew)
             {
-                pw.DoRefreshList(storeService.updateProducts(victim));
+                if (!String.IsNullOrEmpty(_inEdit))
+                {
+                    storeService.updateProducts(victim,JsonConvert.DeserializeObject<OfficialProduct>(_inEdit)).Subscribe(wr => Debug.Print("Update done {0}", wr.LogPosition));
+                }
             }
             else
             {
-                pw.DoRefreshList(storeService.createProducts(victim));
+                storeService.createProducts(victim).Subscribe(wr => Debug.Print("Create done {0}", wr.LogPosition));
             }
         }
 
@@ -138,13 +159,23 @@ namespace ProductsDemo7
                         victim.Region = pw.RegionsSrc.Where(c => c.Id == victim.RegionGuId).FirstOrDefault();
                     }
                 }
+
             }
             catch { }
         }
 
-        private void gridView1_RowDeleting(object sender, DevExpress.Data.RowDeletingEventArgs e)
+       
+
+        private String _inEdit;
+
+       private void gridView1_EditFormShowing(object sender, DevExpress.XtraGrid.Views.Grid.EditFormShowingEventArgs e)
         {
-            Debug.Print(e.Cancel.ToString());
+            try
+            {
+                _inEdit = JsonConvert.SerializeObject(_productsSource[e.RowHandle]);
+ 
+            }
+            catch { }
         }
     }
 }

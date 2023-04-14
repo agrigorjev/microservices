@@ -11,14 +11,22 @@ namespace ProductsDemo.Client
     {
         ChannelBase _channel;
 
+        CancellationTokenSource _cancellationSrc= new CancellationTokenSource();
 
+        private readonly AsyncServerStreamingCall<ServiceEventMessage> _asyncServerStreamingCall;
+
+        public IAsyncStreamReader<ServiceEventMessage> EventStream => _asyncServerStreamingCall.ResponseStream;
         public ProductClientImpl(ChannelBase channel):base(channel)
         {
             _channel = channel;
+            _asyncServerStreamingCall = base.StreamNotify(new GetAllRequestMessage());
+
         }
+
 
         public void Dispose()
         {
+            _asyncServerStreamingCall.Dispose();
            _channel.ShutdownAsync().Wait();
         }
 
@@ -50,6 +58,11 @@ namespace ProductsDemo.Client
 
         }
 
+
+        public AsyncUnaryCall<ProductGrpcResponse> SingleProduct(Guid id)
+        {
+           return base.GetProductAsync(new GetByIdRequestMessage() { Id = id.ToString() });
+        }
 
     }
 }

@@ -6,7 +6,13 @@ using MandaraDemoDTO;
 using OfficialProductDemoAPI.Services.Cache;
 using OfficialProductDemoAPI.Services.Contracts;
 using Optional;
+using static Google.Rpc.Context.AttributeContext.Types;
+using System.Reactive.Concurrency;
 using static MandaraDemo.GrpcDefinitions.ProductAPIService;
+using System.Reactive.Linq;
+using System.Collections.Concurrent;
+using System.Reactive.Subjects;
+using Google.Protobuf.WellKnownTypes;
 
 namespace OfficialProductDemoAPI.Services
 {
@@ -20,15 +26,18 @@ namespace OfficialProductDemoAPI.Services
         private PriceUnitDataConverter _priceUnitDataConverter = new PriceUnitDataConverter();
         private CurrencyDataConverter _currencyDataConverter = new CurrencyDataConverter();
         private RegionDataConverter _regionDataConverter = new RegionDataConverter();
+        private INotifyService<ServiceEventMessage> _notificationService;
         public OfficialProductGrpcService(CacheService<OfficialProduct> productsCache,
                            CacheService<Currency> currencyCache,
                             CacheService<Unit> unitCache,
-                           CacheService<Region> regionsCache)
+                           CacheService<Region> regionsCache,
+                           INotifyService<ServiceEventMessage> notificationService)
         {
             _productsCache=productsCache;
             _currencyCache = currencyCache;
             _unitCache=unitCache;
             _regionsCache=regionsCache;
+            _notificationService = notificationService;
         }
 
         public override Task<ProductsGrpcMessage> GetAllProducts(GetAllRequestMessage request, ServerCallContext context)
@@ -70,6 +79,27 @@ namespace OfficialProductDemoAPI.Services
             Option<OfficialProduct> option = _productsCache.GetSingle(request.Id);
             if (option.HasValue) productGrpcResponse.Product = _converter.Convert(option.ValueOr(() => null));
             return Task.FromResult(productGrpcResponse);
+        }
+
+        public override async Task StreamNotify(GetAllRequestMessage request, IServerStreamWriter<ServiceEventMessage> responseStream, ServerCallContext context)
+        {
+            try
+            {
+
+               await _notificationService.eventSubject.ForEachAsync(v=>
+                {
+                     responseStream.WriteAsync(v,context.CancellationToken);
+                },context.CancellationToken);
+                
+               
+
+            }
+            catch (TaskCanceledException e1) { Console.WriteLine("Session ended:" + e1); }
+            catch (Exception ex)
+            {
+               Console.WriteLine("Session ended:" + ex);
+            }
+
         }
     }
 }

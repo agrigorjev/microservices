@@ -62,10 +62,13 @@ namespace MandaraDemoDTO
         public Guid UnitGuid { get; set; }
 
         [JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
         public Currency? Currency { get;set;}
         [JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
         public Region? Region { get; set; }
         [JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
         public Unit? PriceUnit { get; set; }
 
         public override bool Equals(object obj)

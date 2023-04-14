@@ -6,20 +6,28 @@ using OfficialProductDemoAPI.Extensions;
 using System.Text;
 using System.Collections.Concurrent;
 using MandaraDemoDTO.Extensions;
+using OfficialProductDemoAPI.Services.Contracts;
+using MandaraDemo.GrpcDefinitions;
+using System.Runtime.CompilerServices;
 
 namespace OfficialProductDemoAPI.Services.Cache
 {
     public class OfficialProductsCacheService : CacheService<OfficialProduct>
     {
         private const string _streamName = "OfficialProduct.v1";
-        public OfficialProductsCacheService(EventStoreClient client)
+
+        private INotifyService<ServiceEventMessage> _notificationService;
+        public OfficialProductsCacheService(EventStoreClient client, INotifyService<ServiceEventMessage> notifyService)
         {
             _client = client;
             _cache = new ConcurrentDictionary<Guid, OfficialProduct>();
+            _notificationService = notifyService;
            
         }
 
         public override string StreamName => _streamName;
+
+        public override INotifyService<ServiceEventMessage>? NotificationService { get =>_notificationService; set => _notificationService=value; }
 
         //protected override OfficialProduct? FromEventData(EventRecord record)
         //{
@@ -62,6 +70,8 @@ namespace OfficialProductDemoAPI.Services.Cache
 
         public override string StreamName => _streamName;
 
+        public override INotifyService<ServiceEventMessage>? NotificationService { get => null; set { } }
+
         //protected override Currency? FromEventData(EventRecord record)
         //{
         //    var jsonContent = Encoding.UTF8.GetString(record.Data.ToArray());
@@ -102,6 +112,8 @@ namespace OfficialProductDemoAPI.Services.Cache
         }
 
         public override string StreamName => _streamName;
+
+        public override INotifyService<ServiceEventMessage>? NotificationService { get => null; set { } }
 
         //protected override Unit? FromEventData(EventRecord record)
         //{
@@ -144,6 +156,8 @@ namespace OfficialProductDemoAPI.Services.Cache
         }
 
         public override string StreamName => _streamName;
+
+        public override INotifyService<ServiceEventMessage>? NotificationService { get => null; set { } }
 
         //protected override Region? FromEventData(EventRecord record)
         //{

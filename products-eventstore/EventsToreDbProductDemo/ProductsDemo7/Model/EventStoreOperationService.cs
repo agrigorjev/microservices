@@ -1,18 +1,12 @@
-﻿using DevExpress.Diagram.Core.Shapes.Native;
-using EventStore.Client;
+﻿using EventStore.Client;
+using JsonDiffPatchDotNet;
 using MandaraDemoDTO;
 using MandaraDemoDTO.Contracts;
-using ProductsDemo7.Extensions;
-using System;
-using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using System.Configuration;
 using System.Diagnostics;
-using System.Linq;
 using System.Reactive.Threading.Tasks;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
+
 
 namespace ProductsDemo7.Model
 {
@@ -39,9 +33,9 @@ namespace ProductsDemo7.Model
 
         }
 
-        public IObservable<IWriteResult> updateProducts(OfficialProduct product)
+        public IObservable<IWriteResult> updateProducts(OfficialProduct changed,OfficialProduct original)
         {
-            return exec(ObjectEvent<OfficialProduct>.Update(product, System.Security.Principal.WindowsIdentity.GetCurrent().Name));
+            return exec(ObjectEvent<OfficialProduct>.Update(original, changed, System.Security.Principal.WindowsIdentity.GetCurrent().Name));
 
         }
 

@@ -1,4 +1,5 @@
 using Google.Api;
+using MandaraDemo.GrpcDefinitions;
 using MandaraDemoDTO;
 using Microsoft.OpenApi.Models;
 using OfficialProductDemoAPI.Services;
@@ -16,13 +17,16 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddEventStoreClient(builder.Configuration.GetSection("EventsStrore").GetValue<String>("local"));
+
 builder.Services.AddSingleton<CacheService<OfficialProduct>,OfficialProductsCacheService>();
 builder.Services.AddSingleton<CacheService<Currency>,CurrencyCacheService>();
 builder.Services.AddSingleton<CacheService<Unit>,UnitCacheService>();
 builder.Services.AddSingleton<CacheService<Region>,RegionCacheService>();
+builder.Services.AddSingleton<INotifyService<ServiceEventMessage>, ServiceNotification>();
 builder.Services.AddHostedService<OperationalService>();
 
 var app = builder.Build();
+
 
 app.MapGrpcService<OfficialProductGrpcService>();
 

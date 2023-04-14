@@ -116,7 +116,7 @@
             gridView1.OptionsMenu.ShowAddNewSummaryItem = DevExpress.Utils.DefaultBoolean.False;
             gridView1.OptionsNavigation.AutoFocusNewRow = true;
             gridView1.OptionsView.ShowGroupPanel = false;
-            gridView1.RowDeleting += gridView1_RowDeleting;
+            gridView1.EditFormShowing += gridView1_EditFormShowing;
             gridView1.RowDeleted += gridView1_RowDeleted;
             gridView1.ValidateRow += gridView1_ValidateRow;
             gridView1.RowUpdated += gridView1_RowUpdated;
@@ -341,7 +341,6 @@
             gridControl1.TabIndex = 1;
             gridControl1.UseEmbeddedNavigator = true;
             gridControl1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] { gridView1 });
-            gridControl1.Click += gridControl1_Click;
             // 
             // Form1
             // 
@@ -352,7 +351,6 @@
             Controls.Add(statusStrip);
             Name = "Form1";
             Text = "ProductDemo 7";
-            Load += Form1_Load;
             statusStrip.ResumeLayout(false);
             statusStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)gridView1).EndInit();

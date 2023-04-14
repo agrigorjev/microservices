@@ -31,6 +31,9 @@ namespace OfficialProductDemoAPI.Services.Cache
 
         protected EventStoreClient _client;
 
+        protected bool _warmupDone = false;
+        public abstract INotifyService<ServiceEventMessage>? NotificationService { get; set; }
+
         public abstract string StreamName { get ;  }
 
         public List<T> GetList()
@@ -63,12 +66,17 @@ namespace OfficialProductDemoAPI.Services.Cache
                                 {
                                     Console.WriteLine("Failed to add {0} with id {1}", stream, item.Id);
                                 }
+                                
                                 break;
 
                             case KnownEvents.Update:
-                                if (!_cache.TryUpdate(item.Id, item.Subject, _cache[item.Id]))
+                                if(_cache.TryGetValue(item.Id,out T toUpdate))
                                 {
-                                    Console.WriteLine("Failed to update {0} with id {1}", stream, item.Id);
+                                    if (!_cache.TryUpdate(item.Id, item.withUpdate(toUpdate), _cache[item.Id]))
+                                    {
+                                        Console.WriteLine("Failed to update {0} with id {1}", stream, item.Id);
+                                    }
+                                
                                 }
                                 break;
                             case KnownEvents.Delete:
@@ -83,7 +91,17 @@ namespace OfficialProductDemoAPI.Services.Cache
                                 Console.WriteLine("Unknown event {0}", evnt.EventType);
                                 break;
                         }
-                    }
+                        if (_warmupDone && NotificationService != null)
+                        {
+                            var eventMessage = new ServiceEventMessage()
+                            {
+                                EventType = typeof(T).Name
+                            };
+                            eventMessage.EventPayload.Add(item.Id.ToString());
+                            NotificationService.QueueEvent(eventMessage);
+                         }
+                }
+               
                     Console.Out.WriteLineAsync(string.Format("{0} [{1}],{2}", DateTime.Now,stream, new string(Encoding.UTF8.GetString(evnt.Data.ToArray()))));
                  }
                 catch (Exception ex)
@@ -124,10 +142,21 @@ namespace OfficialProductDemoAPI.Services.Cache
                                 FromStream.After(e),
                                 (stream, evt, token) => Task.Run(() => EventHandler(evt.Event, evt.OriginalEvent.EventStreamId)));
                                 Console.WriteLine("Load {0}: {1} ", StreamName, _cache.Count);
-                          
+                                _warmupDone = true;
+                                if (NotificationService != null)
+                                {
+                                    var eventMessage = new ServiceEventMessage()
+                                    {
+                                        EventType = typeof(T).Name
+                                    };
+                                    eventMessage.EventPayload.Add("Warmup!");
+                                    NotificationService.QueueEvent(eventMessage);
+                                }
+
                         }
                         );
                 }
+                
             }
             catch (Exception ex)
             {

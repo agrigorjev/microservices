@@ -51,6 +51,8 @@ service ProductAPIService {
 			get: "/GetRegions"
 		};
 	}
+	rpc StreamNotify (GetAllRequestMessage) returns (stream ServiceEventMessage){
+	};
 }
 
 message GetAllRequestMessage
@@ -67,6 +69,10 @@ message ProductsGrpcMessage{
 	repeated ProductGrpc products=1;
 }
 
+message ServiceEventMessage{
+	string EventType=1;
+	repeated string EventPayload=2;
+}
 
 message RegionGrpcMessage{
 	repeated RegiontGrpc reference=1;
