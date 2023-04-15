@@ -13,6 +13,7 @@ using System.Reactive.Linq;
 using System.Collections.Concurrent;
 using System.Reactive.Subjects;
 using Google.Protobuf.WellKnownTypes;
+using NLog;
 
 namespace OfficialProductDemoAPI.Services
 {
@@ -27,6 +28,10 @@ namespace OfficialProductDemoAPI.Services
         private CurrencyDataConverter _currencyDataConverter = new CurrencyDataConverter();
         private RegionDataConverter _regionDataConverter = new RegionDataConverter();
         private INotifyService<ServiceEventMessage> _notificationService;
+
+
+        private Logger _logger= LogManager.GetCurrentClassLogger();
+
         public OfficialProductGrpcService(CacheService<OfficialProduct> productsCache,
                            CacheService<Currency> currencyCache,
                             CacheService<Unit> unitCache,
@@ -94,10 +99,12 @@ namespace OfficialProductDemoAPI.Services
                
 
             }
-            catch (TaskCanceledException e1) { Console.WriteLine("Session ended:" + e1); }
+            catch (TaskCanceledException e1) { 
+                _logger.Info("Got cancel signal", e1.Data);
+            }
             catch (Exception ex)
             {
-               Console.WriteLine("Session ended:" + ex);
+                _logger.Error("Notify interrupted",ex);
             }
 
         }

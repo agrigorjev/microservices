@@ -13,8 +13,6 @@ namespace OfficialProductDemoAPI.Services
         public ServiceNotification()
         {
             _serviceEvents = new Subject<ServiceEventMessage>();
-
-           // Observable.Interval(TimeSpan.FromSeconds(1)).Subscribe(v=>_serviceEvents.OnNext(new ServiceEventMessage() { EventType="TICK"} ));
         }
 
         public Subject<ServiceEventMessage> eventSubject => _serviceEvents;

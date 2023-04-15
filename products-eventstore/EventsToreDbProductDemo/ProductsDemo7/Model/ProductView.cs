@@ -4,161 +4,106 @@ using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reactive.Concurrency;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Text.Json.Serialization;
 using DevExpress.Mvvm.Native;
-using DevExpress.Pdf.Native.BouncyCastle.Asn1.X509.Qualified;
-using DevExpress.Xpo;
-using DevExpress.XtraEditors.Design;
+using DevExpress.Utils.Extensions;
 using EventStore.Client;
 using Grpc.Core;
 using Grpc.Net.Client;
 using MandaraDemo.GrpcDefinitions;
 using MandaraDemoDTO;
+using NLog;
 using ProductsDemo.Client;
 using ProductsDemo7.Extensions;
+using ProductsDemo7.Model;
 using Region = MandaraDemoDTO.Region;
 
 namespace ProductsDemo.Model
 {
-    public class ProductView : IDisposable,INotifyPropertyChanged
+    public class ProductView : IDisposable
     {
 
         private ProductClientImpl _client;
-        CancellationToken stopLoad = new CancellationToken();
         private OfficialProductConverter officialProductConverter = new OfficialProductConverter();
         private PriceUnitDataConverter _priceUnitDataConverter = new PriceUnitDataConverter();
         private CurrencyDataConverter _currencyDataConverter = new CurrencyDataConverter();
         private RegionDataConverter _regionDataConverter = new RegionDataConverter();
 
-        private Subject<OfficialProduct> _officialProductSubject;
-
-        private bool _loading = false;
-
-        public string StatusText
-        {
-            get
-            {
-                if (_loading) return "Loading...";
-                else if (_ex != null) return _ex.Message;
-                else return "Loaded " + _products.Count.ToString();
-            }
-        }
-
-        public OfficialProduct ById(Guid id) => _products[id];
-
-        public bool Loading
-        {
-            get
-            {
-                return _loading;
-            }
-            private set
-            {
-                _loading = value;
-                if (PropertyChanged != null)
-                {
-                    OnPropertyChanged(nameof(Loading));
-                    OnPropertyChanged(nameof(StatusText));
-                }
-            }
-        }
-        private ConcurrentDictionary<Guid,OfficialProduct> _products=new ConcurrentDictionary<Guid, OfficialProduct>();
-
+        private Logger _logger = LogManager.GetCurrentClassLogger();
         private ConcurrentDictionary<Guid,Currency> _currencies=new ConcurrentDictionary<Guid, Currency>();
         private ConcurrentDictionary<Guid, Unit> _priceUnits = new ConcurrentDictionary<Guid, Unit>();
         private ConcurrentDictionary<Guid, Region> _regions = new ConcurrentDictionary<Guid, Region>();
 
-        public ICollection<OfficialProduct> Products { get { return _products.Values; } }
+        private BindingList<Currency> _currencySrc=new BindingList<Currency>();
+        public BindingList<Currency> CurrencySrc => _currencySrc;
 
-        public BindingList<Currency> CurrencySrc { get { return new BindingList<Currency>(_currencies.Values.ToList()); } }
-        public BindingList<Unit> PriceUnitSrc { get { return new BindingList<Unit>(_priceUnits.Values.ToList()); } }
-        public BindingList<Region> RegionsSrc { get { return new BindingList<Region>(_regions.Values.ToList()); } }
+        private BindingList<Unit> _priceUnitSrc = new BindingList<Unit>();
+        public BindingList<Unit> PriceUnitSrc => _priceUnitSrc;
 
-        private Exception? _ex =null;
+        private BindingList<Region> _regionSrc = new BindingList<Region>();
+        public BindingList<Region> RegionSrc => _regionSrc;
 
-        private int counter=0;
+        private BindingList<OfficialProduct> _productsSrc = new BindingList<OfficialProduct>();
+        public BindingList<OfficialProduct> ProductsSrc => _productsSrc;
 
-        public Exception? LastError
+        private TaskScheduler _uiScheduler;
+
+        private void AddOrUpdate(OfficialProduct product,bool replace=false)
         {
-            get
+            var idx=_productsSrc.IndexOf(p => p.Id == product.Id);
+            if(idx>=0)
             {
-                return _ex;
-            }
-            private set
-            {
-                _ex=value;
-                if (PropertyChanged != null)
+                if (replace)
                 {
-                    OnPropertyChanged(nameof(LastError));
-                    OnPropertyChanged(nameof(StatusText));
+                    _productsSrc.RemoveAt(idx);
+                    _productsSrc.Add(product);
                 }
             }
+            else
+            {
+                _productsSrc.Add(product);
+            }
+           
         }
 
-        public Subject<OfficialProduct> StreamProducts => _officialProductSubject;
+        private readonly EventStoreOperationService _storeService;
 
-        public ProductView(string serviceUrl)
+        private Subject<string> _stateMessages=new Subject<string>();
+
+        public ProductView(string serviceUrl, TaskScheduler uiScheduler)
         {
             _client = new ProductClientImpl(GrpcChannel.ForAddress(serviceUrl));
-            DoLoadAll();
-            _client.EventStream.ReadAllAsync().ToObservable<ServiceEventMessage>()
-                 .Subscribe(x => HandleServiceEventMessage(x));
-            _officialProductSubject = new Subject<OfficialProduct>();
+            _uiScheduler=uiScheduler;
+            _storeService = new EventStoreOperationService();
+            
         }
 
-        //public void DoRefreshList(IObservable<IWriteResult> before)
-        //{
-        //    Subject<DateTime> subject = new();
-        //    var act = 
-                
-        //        _client.loadAll()
-        //      .Do(result =>
-        //      {
-        //          _products.Clear();
+        public IDisposable onStatusChanged(Action<String> action)
+        {
+            return _stateMessages.Subscribe(s=>Extensions.onTaskScheduler(()=>action(s), ex => _logger.Error(ex, "Update status text"), _uiScheduler));
+        }
 
-        //          result.Select(p => officialProductConverter.Convert(p)).Where(p => p != null)
-        //           .ToList()
-        //           .ForEach(p => {
-        //             if (_currencies.TryGetValue(p.CurrencyGuId, out Currency currency))
-        //             {
-        //                 p.Currency = currency;
-        //             }
-        //             if (_priceUnits.TryGetValue(p.UnitGuid, out Unit unit))
-        //             {
-        //                 p.PriceUnit = unit;
-        //             }
-        //             if (p.RegionGuId != null && _regions.TryGetValue(p.CurrencyGuId, out Region region))
-        //             {
-        //                 p.Region = region;
-        //             }
-        //             _products.Add(p);
-        //         });
-        //          Debug.Print("Done loading OP [{0}]", DateTime.Now);
-        //          Loading = false;
-        //          LastError = null;
-        //          OnProductsLoaded();
-        //      })
-        //     .RetryWithBackoffStrategy(int.MaxValue, n => TimeSpan.FromSeconds(2), ex =>
-        //     {
-        //         Debug.WriteLine("Retry " + counter++.ToString() + " " + DateTime.Now.ToString());
-        //         LastError = ex;
-        //         Loading = false;
-        //         return true;
+        public void Init(Action<BindingList<OfficialProduct>> bindAction)
+        {
+            LoadReferences();
+            GetAll()
+                 .ToList()
+                 .Subscribe(lst =>
+                 {
+                     _productsSrc = new BindingList<OfficialProduct>(lst);
+                     bindAction.Invoke(ProductsSrc);
+                 },
+                  onCompleted: () =>
+                  {
+                      _stateMessages.OnNext(string.Format("Products loaded. Total {0}", _productsSrc.Count));
+                      _client.EventStream.ReadAllAsync().ToObservable<ServiceEventMessage>()
+                         .Subscribe(HandleServiceEventMessage);
+                  });
+            
 
-        //     });
-
-        //    before
-        //        .Select(x=>true)
-        //        .Delay(TimeSpan.FromSeconds(2))
-        //        .Concat(act.Select(x=>true))
-        //        .DelaySubscription(TimeSpan.FromSeconds(2))
-        //       .Subscribe();
-
-
-        //}
-
+        }
 
         private void HandleServiceEventMessage(ServiceEventMessage message)
         {
@@ -166,21 +111,25 @@ namespace ProductsDemo.Model
             {
                 case "OfficialProduct":
                     {
-                        message.EventPayload.ForEach(payloadItem =>
+                        message.EventPayload.ToList().ForEach(payloadItem =>
                         {
                             if (payloadItem.StartsWith("Warmup"))
                             {
-                                loadAllProducts();
+                                _logger.Info("Got OfficialProduct {0}", message.EventType);
+                                GetAll().Subscribe(p =>
+                                     Extensions.onTaskScheduler(() => AddOrUpdate(p), ex => _logger.Error(ex, "ProductSource update error"), _uiScheduler)
+                                );
                             }
                             else if(Guid.TryParse(payloadItem,out Guid toReload))
                             {
+                                _logger.Info("Got OfficialProduct {0} for {1}", message.EventType,payloadItem);
                                 loadSingleProduct(toReload);
                             }
                         });
                     }
                     break;
                 default:
-                    Debug.Print(message.EventType);
+                    _logger.Info("Got event: {0}",message.EventType);
                     break;
             }
         }
@@ -189,21 +138,22 @@ namespace ProductsDemo.Model
         {
             if (p != null)
             {
-                if (_currencies.TryGetValue(p.CurrencyGuId, out Currency currency))
+                if (_currencies.TryGetValue(p.CurrencyGuId, out Currency? currency))
                 {
                     p.Currency = currency;
                 }
-                if (_priceUnits.TryGetValue(p.UnitGuid, out Unit unit))
+                if (_priceUnits.TryGetValue(p.UnitGuid, out Unit? unit))
                 {
                     p.PriceUnit = unit;
                 }
-                if (p.RegionGuId != null && _regions.TryGetValue(p.CurrencyGuId, out Region region))
+                if (p.RegionGuId != null && _regions.TryGetValue(p.CurrencyGuId, out Region? region))
                 {
                     p.Region = region;
                 }
             }
             return p;
         }
+
         private void loadSingleProduct(Guid toLoad)
         {
             Observable.FromAsync(_ => _client.SingleProduct(toLoad).ResponseAsync)
@@ -211,99 +161,166 @@ namespace ProductsDemo.Model
                  .Select(p => enrichOfficialProduct(officialProductConverter.Convert(p.Product)))
                  .Subscribe(p =>
                  {
-                     _products.AddOrUpdate(p.Id, p, (k, v) => p);
-                     _officialProductSubject.OnNext(p);
+                     Extensions.onTaskScheduler(()=>AddOrUpdate(p,true),ex => _logger.Error(ex, "ProductSource update error"), _uiScheduler);
+                 },
+                 _=>{
+                     _stateMessages.OnNext(string.Format("Update {0} done.", toLoad));
                  });
         }
-        private  void loadAllProducts()
+
+        private IObservable<OfficialProduct> GetAll()
         {
-             _client.loadAll()
-               .Do(result =>
-               {
-                   _products.Clear();
-                    result.Select(p => enrichOfficialProduct(p: officialProductConverter.Convert(p))).Where(p => p != null)
-                   .ForEach(p=>
-                   {
-                       _products.TryAdd(p.Id, p);
-                       _officialProductSubject.OnNext(p);
-                   });
-                   Loading = false;
-                   LastError = null;
-                   OnProductsLoaded();
-               })
-               .RetryWithBackoffStrategy(int.MaxValue, n => TimeSpan.FromSeconds(2), ex =>
-               {
-                   Debug.WriteLine("Retry " + counter++.ToString() + " " + DateTime.Now.ToString());
-                   LastError = ex;
-                   Loading = false;
-                   return true;
-
-               })
-              .Subscribe();
-        }
-
-        private void DoLoadAll()
-        {
-            counter++;
-            Debug.Print("done +" + counter.ToString() + " " + DateTime.Now.ToString());
-
-            Loading = true;
-
-
-            _client.loadAllCurrencies()
-                .Do(c => {
-                    var gotValue = _currencyDataConverter.Convert(c);
-                    _currencies.AddOrUpdate(gotValue.Id, gotValue, (key, oldValue) => gotValue);
-                })
+           var retryCounter = 1;
+           return _client.loadAllProducts()
+                .Where(p => p != null)
+                .Select(p => enrichOfficialProduct(p: officialProductConverter.Convert(p)))
+                .Where(p => p != null)
                 .RetryWithBackoffStrategy(int.MaxValue, n => TimeSpan.FromSeconds(2), ex =>
                 {
-                    Debug.WriteLine("Retry " + counter++.ToString() + " " + DateTime.Now.ToString());
-                    LastError = ex;
-                    Loading = false;
+                    _logger.Warn(ex, "Curency init {0}", retryCounter++);
+                    return true;
+                });
+        }
+        private void LoadReferences()
+        {
+            int retryCounter =1;
+
+            _client.loadAllCurrencies()
+                .Select(_currencyDataConverter.Convert)
+                .Where(c => c != null)
+                .RetryWithBackoffStrategy(int.MaxValue, n => TimeSpan.FromSeconds(2), ex =>
+                {
+                    _logger.Warn(ex, "Curency init {0}", retryCounter++);
+                    _stateMessages.OnNext(string.Format("Curency init retry {0}", retryCounter++));
                     return true;
 
-                }).Subscribe();
+                }, scheduler:Scheduler.Immediate)
+                .Subscribe(c => {
+                    _currencies.AddOrUpdate(c.Id, c, (key, oldValue) => c);
+                },
+                 onCompleted: () => {
+                     Extensions.onTaskScheduler(() => _currencySrc.fromDictionary(_currencies), ex => _logger.Error(ex, "Bind list error"), _uiScheduler);
+                     _logger.Info("Curency init {0} done.Total {1}", retryCounter, _currencies.Count);
+                    _stateMessages.OnNext(string.Format("Curency init {0} done.Total {1}", retryCounter, _currencies.Count));
+                });
+            _stateMessages.OnNext("Start loading price units");
+            retryCounter = 1;
+            _client.loadAllPriceUnits()
+                .Select(_priceUnitDataConverter.Convert)
+                .Where(c => c != null)
+                .RetryWithBackoffStrategy(int.MaxValue, n => TimeSpan.FromSeconds(2), ex =>
+                {
+                    _logger.Warn(ex, "PriceUnit init {0}", retryCounter++);
+                    _stateMessages.OnNext(string.Format("PriceUnit init retry {0}", retryCounter++));
+                    return true;
 
-             _client.loadAllPriceUnits()
-                .Do(c => {
-                    var gotValue = _priceUnitDataConverter.Convert(c);
+                }, scheduler: Scheduler.Immediate)
+                .SubscribeOn(Scheduler.Immediate)
+                .Subscribe(gotValue => {
                     _priceUnits.AddOrUpdate(gotValue.Id, gotValue, (key, oldValue) => gotValue);
-                }).RetryWithBackoffStrategy(int.MaxValue, n => TimeSpan.FromSeconds(2), ex =>
+                }, 
+                onCompleted: () => {
+                    Extensions.onTaskScheduler(() => _priceUnitSrc.fromDictionary(_priceUnits), ex => _logger.Error(ex, "Bind list error"), _uiScheduler);
+                    _logger.Info("PriceUnit init {0} done.Total {1}", retryCounter, _priceUnits.Count); 
+                    _stateMessages.OnNext(string.Format("PriceUnit init {0} done.Total {1}", retryCounter, _priceUnits.Count));
+                });
+
+            
+            retryCounter = 1;
+             _client.loadAllRegions()
+                .Select(_regionDataConverter.Convert)
+                .Where(c => c != null)
+                .RetryWithBackoffStrategy(int.MaxValue, n => TimeSpan.FromSeconds(2), ex =>
                 {
-                    Debug.WriteLine("Retry " + counter++.ToString() + " " + DateTime.Now.ToString());
-                    LastError = ex;
-                    Loading = false;
+                    _logger.Warn(ex, "Region init {0}", retryCounter++);
+                    _stateMessages.OnNext(string.Format("Region init retry {0}", retryCounter++));
                     return true;
 
-                }).Subscribe();
-            _client.loadAllRegions()
-                .Do(c => {
-                    var gotValue = _regionDataConverter.Convert(c);
+                }, scheduler: Scheduler.Immediate)
+                .SubscribeOn(Scheduler.Immediate)
+                .Subscribe(gotValue => {
                     _regions.AddOrUpdate(gotValue.Id, gotValue, (key, oldValue) => gotValue);
-                }).RetryWithBackoffStrategy(int.MaxValue, n => TimeSpan.FromSeconds(2), ex =>
+                },
+                onCompleted: () => {
+                    Extensions.onTaskScheduler(() => _regionSrc.fromDictionary(_regions), ex => _logger.Error(ex, "Bind list error"), _uiScheduler);
+                    _logger.Info( "Region init {0} done.Total {1}", retryCounter, _regions.Count);
+                    _stateMessages.OnNext(string.Format("Region init {0} done.Total {1}", retryCounter, _regions.Count));
+                });
+        }
+        
+        private void RemoveFromList(Guid id)
+        {
+            var idx =_productsSrc.IndexOf(p => p.Id == id);
+            if (idx >= 0)
+            {
+                Extensions.onTaskScheduler(()=>_productsSrc.RemoveAt(idx), ex => _logger.Error(ex),_uiScheduler);
+            }
+        }
+
+        public void DeleteProduct(OfficialProduct p)
+        {
+            _storeService
+                .deleteProducts(p)
+                 .SubscribeOn(Scheduler.Default)
+                .Subscribe(wr =>
                 {
-                    Debug.WriteLine("Retry " + counter++.ToString() + " " + DateTime.Now.ToString());
-                    LastError = ex;
-                    Loading = false;
-                    return true;
-
-                }).Subscribe();
-
-            loadAllProducts();
+                    _logger.Info("Sent {0} with position {1}", p.Id, wr.LogPosition);
+                    loadSingleProduct(p.Id);
+                });
+        }
+        public void AddProduct(OfficialProduct p)
+        {
+            _storeService
+                .createProducts(p)
+                .SubscribeOn(Scheduler.Default)
+                .Subscribe(wr =>
+                {
+                    RemoveFromList(p.Id);
+                    _logger.Info("Sent {0} with position {1}", p.Id, wr.LogPosition);
+                    loadSingleProduct(p.Id);
+                });
         }
 
-
-        public event EventHandler? ProductsLoaded;
-
-        protected void OnProductsLoaded()
+        private OfficialProduct? _inEdit = null;
+        public void BeginUpdate(int opIndex)
         {
-            ProductsLoaded?.Invoke(this,new EventArgs());
+            try
+            {
+                var product= _productsSrc[opIndex];
+                if(product!=null && !product.isNew)
+                {
+                    _inEdit = product.CloneJson();
+                }
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
+        public void CancelUpdate()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            _inEdit = null;
+        }
+
+        public void ExecUpdate(OfficialProduct changed)
+        {
+            if (_inEdit != null && changed.Id == _inEdit.Id)
+            {
+                _storeService
+                  .updateProducts(changed,_inEdit)
+                   .SubscribeOn(Scheduler.Default)
+                   .Subscribe(wr =>
+                   {
+                       RemoveFromList(changed.Id);
+                       _logger.Info("Sent update {0} with position {1}", changed.Id, wr.LogPosition);
+                       loadSingleProduct(changed.Id);
+                   });
+            }
+            else
+            {
+                _logger.Warn("Update inconsistent");
+            }
         }
 
         public void Dispose()

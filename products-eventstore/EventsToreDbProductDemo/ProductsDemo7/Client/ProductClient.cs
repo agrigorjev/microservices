@@ -30,9 +30,10 @@ namespace ProductsDemo.Client
            _channel.ShutdownAsync().Wait();
         }
 
-        public IObservable<RepeatedField<ProductGrpc>> loadAll()
+        public IObservable<ProductGrpc> loadAllProducts()
         {
-             return Observable.FromAsync(() => GetAllProductsAsync(new GetAllRequestMessage()).ResponseAsync).Select(x => x.Products);
+             return Observable.FromAsync(() => GetAllProductsAsync(new GetAllRequestMessage()).ResponseAsync)
+                .SelectMany(x => x.Products);
             
         }
 
@@ -63,6 +64,7 @@ namespace ProductsDemo.Client
         {
            return base.GetProductAsync(new GetByIdRequestMessage() { Id = id.ToString() });
         }
+
 
     }
 }

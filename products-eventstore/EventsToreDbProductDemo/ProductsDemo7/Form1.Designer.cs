@@ -93,7 +93,6 @@
             viewState.Name = "viewState";
             viewState.Size = new Size(785, 17);
             viewState.Spring = true;
-            viewState.Text = "toolStripStatusLabel1";
             viewState.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // gridView1
@@ -351,6 +350,8 @@
             Controls.Add(statusStrip);
             Name = "Form1";
             Text = "ProductDemo 7";
+            FormClosing += Form1_FormClosing;
+            Load += Form1_Load;
             statusStrip.ResumeLayout(false);
             statusStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)gridView1).EndInit();
