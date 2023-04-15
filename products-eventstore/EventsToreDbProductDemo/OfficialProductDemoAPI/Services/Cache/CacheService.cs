@@ -137,7 +137,6 @@ namespace OfficialProductDemoAPI.Services.Cache
                         EventHandler(e.Event, e.OriginalEvent.EventStreamId);
                         return e.OriginalEventNumber;
                     })
-                    .SubscribeOn(Scheduler.Immediate)
                     .Subscribe(
                         e =>
                         {

@@ -10,13 +10,14 @@ using System.Reactive.Threading.Tasks;
 
 namespace ProductsDemo7.Model
 {
-    public class EventStoreOperationService
+    public class EventStoreOperationService:IDisposable
     {
         private readonly EventStoreClient _client;
         private readonly string _streamName;
 
         public EventStoreOperationService()
         {
+            
             _streamName = ConfigurationManager.AppSettings["OfficialProductsStreamName"] ?? "OfficialProduct.v1";
             _client = new EventStoreClient(EventStoreClientSettings.Create(ConfigurationManager.AppSettings["eventStoreConnectionString"] ?? "esdb://localhost:2113?tls=false"));
         }
@@ -46,5 +47,9 @@ namespace ProductsDemo7.Model
                .ToObservable();
         }
 
+        public void Dispose()
+        {
+            _client.Dispose();
+        }
     }
 }

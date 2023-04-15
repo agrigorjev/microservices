@@ -140,8 +140,9 @@ namespace ProductsDemo7
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-           pw?.Dispose();
-           pwStatusHandler?.Dispose();
+            pwStatusHandler?.Dispose();
+            pw?.Dispose();
+          
         }
     }
 }

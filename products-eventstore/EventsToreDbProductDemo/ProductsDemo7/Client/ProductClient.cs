@@ -26,8 +26,9 @@ namespace ProductsDemo.Client
 
         public void Dispose()
         {
-            _asyncServerStreamingCall.Dispose();
+           
            _channel.ShutdownAsync().Wait();
+            _asyncServerStreamingCall.Dispose();
         }
 
         public IObservable<ProductGrpc> loadAllProducts()
