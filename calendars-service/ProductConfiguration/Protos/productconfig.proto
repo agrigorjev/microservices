@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+import "Protos/customtypes.proto";
+
+option csharp_namespace = "Mandara.ProductConfiguration.GrpcDefinitions";
+
+package calendar;
+
+
+service ProductConfigurationService {
+
+	rpc GetAllProductMappings (google.protobuf.Empty)
+		returns (ProductMappingsGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/var/productmappings"
+		};
+	}
+
+	rpc  GetProductMappingById (GetByIdRequestMessage)
+		returns (ProductMappingsGrpcResponse)
+	{
+		option (google.api.http) = {
+			get: "/var/productmappings/{id}"
+		};
+	}
+
+	rpc GetAllCategories (google.protobuf.Empty)
+		returns (CategoryGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/var/categories"
+		};
+	}
+
+	rpc  GeCategoryById (GetByIdRequestMessage)
+		returns (CategoryGrpcResponse)
+	{
+		option (google.api.http) = {
+			get: "/var/categories/{id}"
+		};
+	}
+}
+
+
+message GetByIdRequestMessage{
+	int32 id=1;
+}
+
+message ProductMappingsGrpcMessage{
+	repeated ProductMappingsGrpc product_mappings=1;
+}
+
+message ProductMappingsGrpcResponse {
+  oneof product_mappings_by_id {
+    google.protobuf.NullValue null = 1;
+    ProductMappingsGrpc product_mappings = 2;
+  }
+}
+message CategoryGrpcMessage{
+	repeated CategoryGrpc categories=1;
+}
+
+message CategoryGrpcResponse {
+  oneof category_by_id {
+    google.protobuf.NullValue null = 1;
+    CategoryGrpc category = 2;
+  }
+}
+
+message ProductMappingsGrpc{
+	optional google.protobuf.StringValue abbreviation=1;
+    optional google.protobuf.Int32Value  category_id=2;
+    optional customtypes.DecimalValue conversion_factor=3;
+    optional google.protobuf.StringValue display_name=4;
+    string official_name=5;
+    int32 official_product_id=6;
+    optional google.protobuf.StringValue old_price_mapping_column=7;
+    optional google.protobuf.StringValue price_mapping_column=8;
+    optional google.protobuf.Int32Value priority=9;
+    optional google.protobuf.BoolValue is_daily=10;
+    optional google.protobuf.Int32Value holiday_calendar_id=11;
+}
+
+message CategoryGrpc{
+	int32 id=1;
+	optional google.protobuf.StringValue value=2;
+	optional customtypes.DecimalValue pnl_factor=3;
+	optional google.protobuf.Int32Value expiry_calendar_id=4;
+	optional google.protobuf.BoolValue daily=5;
+	optional google.protobuf.BoolValue select_months=6;
+}
