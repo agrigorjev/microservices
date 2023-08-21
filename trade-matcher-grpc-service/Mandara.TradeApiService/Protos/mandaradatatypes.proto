@@ -1,0 +1,200 @@
+syntax = "proto3";
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "Protos/customtypes.proto";
+
+option csharp_namespace = " Mandara.GrpcDefinitions.Extensions";
+
+package datatypes;
+
+message ExchangeUnitsGrpc{
+	repeated int32 available_units = 1;
+	repeated int32 balmo_units = 2;
+	bool has_balmo = 3;
+}
+
+message ListInts{
+	repeated int32 unit_id = 1;
+}
+
+message InstrumentGrpc{
+	int32 id = 1;
+	string name = 2;
+	repeated int32 available_units = 3;
+	repeated int32 balmo_units = 4;
+	repeated string exchanges = 5;
+	bool has_balmo = 6;
+	bool has_futures = 7;
+	map<string, ExchangeUnitsGrpc> exchange_units = 8;
+	repeated string expiry_exchanges = 9;
+	bool has_no_tas = 10;
+	bool has_tas = 11;
+	bool has_mops = 12;
+	bool has_mm = 13;
+	bool has_moc = 14;
+	bool has_daily_swaps = 15;
+	bool has_daily_diffs = 16;
+	map<string, ListInts> daily_swap_units = 17;
+	map<string, ListInts> daily_diff_units = 18;
+	repeated string fx_trades_exchanges = 19;
+	string fx_specified_currency = 20;
+	string fx_against_currency = 21;
+	string currency = 22;
+	bool is_calc_pnl_from_legs = 23;
+}
+
+message ExchangeGrpc{
+	int32 exchange_id = 1;
+	optional google.protobuf.StringValue name = 2;
+	optional google.protobuf.StringValue mapping_value = 3;
+    optional google.protobuf.Int32Value calendar_id = 4;
+	optional StockCalendarGrpc calendar = 5;
+	string timezone_id = 6;
+}
+
+message HolidayGrpc{
+	int32 calendar_id=1;
+	google.protobuf.Timestamp holiday_date = 2;
+}
+
+message ExpiryDatesGrpc{
+	int32 calendar_id=1;
+	google.protobuf.Timestamp future_date = 2;
+	google.protobuf.Timestamp expiry_date =3;
+}
+
+message StockCalendarGrpc{
+	int32 calendar_id=1;
+	string name = 2;
+	google.protobuf.Int32Value correction = 3;
+	google.protobuf.StringValue timezone=4;
+	google.protobuf.Int32Value calendar_type_db=5;
+	repeated ExpiryDatesGrpc future_expiries =6;
+	repeated HolidayGrpc holidays = 7;
+	int32 calendar_type=8;
+}
+
+message CompanyAliasGrpc{
+	int32 alias_id = 1;
+	string alias_name = 2;
+	int32 company_id = 3;
+}
+
+message OfficalProductGrpc{
+	int32 OfficialProductId=1;
+	string OfficialName=2;
+	optional google.protobuf.StringValue DisplayName=3;
+	optional google.protobuf.StringValue MappingColumn=4;
+}
+
+message PortfolioGrpc {
+	int32 portfolio_id = 1;
+	string name = 2;
+	int32 parent_portfolio_id = 3;
+	bool is_archived = 4;
+	bool is_error_book = 5;
+}
+
+message UnitGrpc{
+	int32 unit_id = 1;
+	string name = 2;
+	optional customtypes.DecimalValue default_position_factor = 3;
+	bool only_month_contract_size = 4;
+}
+
+message StripGrpc{
+	string string_value = 1;
+	google.protobuf.Timestamp start_date = 2;
+	optional google.protobuf.Timestamp end_date = 3;
+	bool is_balmo_strip = 4;
+}
+
+message StripDetailGrpc{
+	StripGrpc strip = 1;
+	InstrumentGrpc instrument = 2;
+	customtypes.DecimalValue volume = 3;
+	customtypes.DecimalValue price = 4;
+	UnitGrpc unit = 5;
+	optional customtypes.DecimalValue live_price = 6;
+	customtypes.DecimalValue leg1_price = 7;
+	customtypes.DecimalValue leg2_price = 8;
+}
+
+message ProductGrpc{
+	int32 ProductId=1;
+	int32 CalendarId=2;
+	optional google.protobuf.Int32Value HolidaysCalendarId=3;
+	string Name=4;
+	int32 ProductTypeDb=5;
+	optional customtypes.DecimalValue PositionFactor=6;
+	optional customtypes.DecimalValue PnlFactor=7;
+	google.protobuf.Int32Value CategoryId=8;
+	int32 OfficialProductId=9;
+	optional customtypes.DecimalValue ContractSize=10;
+	google.protobuf.Int32Value BalmoOnCrudeProductId=11;
+	google.protobuf.Int32Value BalmoOnComplexProductId=12;
+	optional google.protobuf.Timestamp ValidFrom=13;
+	optional google.protobuf.Timestamp ValidTo=14;
+	google.protobuf.Int32Value UnderlyingFuturesProductId=15;
+	google.protobuf.Int32Value UnderlyingFuturesOverrideId=16;
+	google.protobuf.StringValue ExchangeContractCode=17;
+	optional customtypes.DecimalValue FeeExchange=18;
+	optional customtypes.DecimalValue FeeNfa=19;
+	optional customtypes.DecimalValue FeeCommission=20;
+	optional customtypes.DecimalValue FeeClearing=21;
+	optional google.protobuf.StringValue TimezoneId = 22;
+	optional google.protobuf.Timestamp RolloffTime=23;
+	google.protobuf.BoolValue UseRolloffSettings=24;
+	optional customtypes.DecimalValue FeeConversionFactor=25;
+	optional customtypes.DecimalValue FeeCash=26;
+	optional google.protobuf.StringValue DefinitionLink=27;
+	optional google.protobuf.StringValue BalmoContractCode1=28;
+	optional google.protobuf.StringValue BalmoContractCode2=29;
+	optional google.protobuf.StringValue BalmoContractCode3=30;
+	optional google.protobuf.StringValue BalmoCodeFirstLetter=31;
+	optional google.protobuf.Int32Value ExpirationTypeDb=32;
+	optional google.protobuf.Int32Value RollingMethodDb=33;
+	optional google.protobuf.Timestamp GivenDate=34;
+	optional google.protobuf.Int32Value ExpirationMonth=35;
+	optional google.protobuf.Int32Value NumberOfDays=36;
+	optional google.protobuf.Int32Value ExchangeId=37;
+	optional customtypes.DecimalValue FeeBlockTrade=38;
+	optional customtypes.DecimalValue FeePlattsTrade=39;
+	optional google.protobuf.Timestamp FuturesExpireTime=40;
+	optional google.protobuf.BoolValue UseExpiryCalendar=41;
+	optional google.protobuf.BoolValue IsPhysicallySettledDb=42;
+	optional google.protobuf.BoolValue IsInternalTransferProductDb=43;
+	optional customtypes.DecimalValue PriceConversionFactorDb=44;
+	optional google.protobuf.BoolValue IsTasDb=45;
+	optional google.protobuf.Timestamp PricingEndTime=46;
+	optional google.protobuf.BoolValue TreatTimespreadStripAsLegsDb=47;
+	bool CalculatePnlFromLegs=48;
+	optional google.protobuf.BoolValue IsMopsDb=49;
+	optional google.protobuf.BoolValue IsMmDb=50;
+	optional google.protobuf.Timestamp CategoryOverrideAt=51;
+	optional google.protobuf.Int32Value CategoryOverrideId=52;
+	google.protobuf.Int32Value TasOfficialProductId=53;
+	bool IsChanged=54;
+	optional google.protobuf.Int32Value MonthlyOfficialProductId=55;
+	optional google.protobuf.Int32Value DailyDiffMonthShiftDb=56;
+	optional google.protobuf.StringValue PhysicalCode=57;
+	optional google.protobuf.Int32Value UnitId=58;
+	optional google.protobuf.BoolValue IsAllowedForManualTradesDb=59;
+	optional google.protobuf.Int32Value Currency1Id=60;
+	optional google.protobuf.Int32Value Currency2Id=61;
+	optional google.protobuf.Int32Value FeeClearingCurrencyId=62;
+	optional google.protobuf.Int32Value FeeCommissionCurrencyId=63;
+	optional google.protobuf.Int32Value FeeExchangeCurrencyId=64;
+	optional google.protobuf.Int32Value FeeNfaCurrencyId=65;
+	optional google.protobuf.Int32Value FeeCashCurrencyId=66;
+	optional google.protobuf.Int32Value FeeBlockCurrencyId=67;
+	optional google.protobuf.Int32Value FeePlattsCurrencyId=68;
+	optional google.protobuf.BoolValue IsEnabledRiskDecompositionDb=69;
+	bool IsCalendarDaySwap=70;
+	optional google.protobuf.Int32Value ContractSizeMultiplierDb=71;
+	optional google.protobuf.Int32Value IceEquivalentProductDb=72;
+	optional google.protobuf.Int32Value IceEquivalentUnderlyingProduct=73;
+}

@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "Protos/customtypes.proto";
+import "Protos/mandaradatatypes.proto";
+
+option csharp_namespace = "Mandara.TradeApiService.GrpcDefinitions";
+
+package tradeadd;
+
+service TradeApiGrpcService {
+
+	rpc GetTradeAddPrerequisites (TradeAddPrerequisitesRequestGrpcMessage)
+		returns (TradeAddPrerequisitesResponseGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/trade_api/GetTradeAddPrerequisites"
+		};
+	}
+}
+
+message TradeAddPrerequisitesRequestGrpcMessage {
+	int32 user_id = 1;
+	int32 trade_capture_id = 2;
+	bool is_duplicate_mode = 3;
+	bool is_master_tool_mode = 4;
+}
+
+
+message TradeAddPrerequisitesResponseGrpcMessage {
+	repeated datatypes.UnitGrpc units = 1;
+	repeated datatypes.InstrumentGrpc instruments = 2;
+	repeated datatypes.PortfolioGrpc portfolios = 3;
+	repeated datatypes.ExchangeGrpc exchanges = 4;
+	repeated datatypes.CompanyAliasGrpc brokers = 5;
+	datatypes.PortfolioGrpc default_user_portfolio = 6;
+	repeated datatypes.InstrumentGrpc available_instruments_for_exchange = 7;
+	repeated string expiry_exchanges = 8;
+	repeated TradeTemplateGrpc trade_templates = 9;
+	TradeAddDetailsGrpc trade_add_details = 10;
+	string error_message = 11;
+}
+
+message TradeTemplateGrpc{
+	int32 trade_template_id = 1;
+	int32 portfolio_id = 2;
+	int32 official_product_id = 3;
+	int32 exchange_id = 4;
+	customtypes.DecimalValue volume = 5;
+	string template_name = 6;
+	optional google.protobuf.Int32Value unit_id = 7;
+	datatypes.ExchangeGrpc exchange = 8;
+	datatypes.OfficalProductGrpc official_product = 9;
+	datatypes.PortfolioGrpc portfolio = 10;
+	datatypes.UnitGrpc unit = 11;
+}
+
+message TradeAddDetailsGrpc{
+	datatypes.PortfolioGrpc portfolio1 = 1;
+	datatypes.PortfolioGrpc portfolio2 = 2;
+	string broker = 3;
+	string exchange = 4;
+	string expiry_exchange = 5;
+	bool is_internal_exchange = 6;
+	TradeTypeControl trade_type = 7;
+	SideControl side = 8;
+	StripTypeControl strip_type_control = 9;
+	datatypes.StripDetailGrpc strip_detail1 = 10;
+	datatypes.StripDetailGrpc strip_detail2 = 11;
+	google.protobuf.Timestamp createdat_utc = 12;
+	string createdby_username = 13;
+	datatypes.ProductGrpc product = 14;
+	int32 official_product_id = 15;
+	bool is_product_from_product_tool = 16;
+	repeated int32 trade_capture_ids = 17;
+	optional google.protobuf.Int32Value group_id = 18;
+	string edit_cancel_reason = 19;
+	optional google.protobuf.BoolValue is_tas_checked = 20;
+	optional google.protobuf.BoolValue is_mops_checked = 21;
+	optional google.protobuf.BoolValue is_mm_checked = 22;
+	optional google.protobuf.BoolValue is_moc_checked = 23;
+	bool is_master_tool_mode = 24;
+	optional google.protobuf.Timestamp trade_date = 25;
+	optional google.protobuf.Timestamp timestamp = 26;
+	optional google.protobuf.Timestamp timestamp_utc = 27;
+	optional google.protobuf.Timestamp transact_time = 28;
+	optional google.protobuf.Timestamp transact_time_utc = 29;
+	google.protobuf.Timestamp forward_value_date = 30;
+	customtypes.DecimalValue specified_amount = 31;
+	customtypes.DecimalValue against_amount = 32;
+	customtypes.DecimalValue fx_exchange_rate = 33;
+	bool is_spot = 34;
+	datatypes.InstrumentGrpc fx_selected_instrument = 35;
+}
+
+enum TradeTypeControl
+{
+    TRADE_TYPE_CONTROL_MANUAL = 0;
+    TRADE_TYPE_CONTROL_TRANSFER = 1;
+}
+
+enum SideControl
+{
+    SIDE_CONTROL_BUY = 0;
+    SIDE_CONTROL_SELL = 1;
+}
+
+enum StripTypeControl
+{
+    STRIP_TYPE_CONTROL_FLAT = 0;
+    STRIP_TYPE_CONTROL_SPREAD = 1;
+    STRIP_TYPE_CONTROL_CUSTOMMONTHLY = 2;
+    STRIP_TYPE_CONTROL_FUTUREVSSWAP = 3;
+    STRIP_TYPE_CONTROL_DAILYSWAP = 4;
+    STRIP_TYPE_CONTROL_DAILTYDIFF = 5;
+    STRIP_TYPE_CONTROL_FX = 6;
+}
