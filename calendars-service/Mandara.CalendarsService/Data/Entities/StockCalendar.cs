@@ -11,6 +11,9 @@ namespace Mandara.CalendarsService.Data
         {
             FuturesExpiries = new HashSet<CalendarExpiryDate>();
             Holidays = new HashSet<CalendarHoliday>();
+            Name = DefaultCalendarName;
+            Timezone = TimeZoneInfo.Local.StandardName;
+
         }
 
         [Column("calendar_id")]
@@ -26,7 +29,7 @@ namespace Mandara.CalendarsService.Data
 
         [Column("timezone")]
         [StringLength(255)]
-        public string Timezone { get; set; }
+        public string? Timezone { get; set; }
 
         [Column("calendar_type")]
         public int? CalendarTypeDb { get; set; }
@@ -42,7 +45,7 @@ namespace Mandara.CalendarsService.Data
             set => CalendarTypeDb = (int) value;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj as StockCalendar)?.CalendarId ?? int.MinValue) == CalendarId;
         }
@@ -69,7 +72,7 @@ namespace Mandara.CalendarsService.Data
             Correction = 0,
             FuturesExpiries = new List<CalendarExpiryDate>(),
             Holidays = new List<CalendarHoliday>(),
-            Timezone = TimeZone.CurrentTimeZone.StandardName,
+            Timezone = TimeZoneInfo.Local.StandardName,
         };
 
         public bool IsDefault()

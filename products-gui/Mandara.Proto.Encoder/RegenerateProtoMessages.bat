@@ -1,0 +1,1 @@
+"..\packages\google.protobuf.tools\3.6.1\tools\windows_x64\protoc.exe"  "Protos\AuditMessageDetails.proto" --csharp_out=Generated --proto_path Protos

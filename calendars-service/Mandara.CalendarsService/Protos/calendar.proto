@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "Mandara.CalendarsService.GrpcDefinitions";
+
+package calendar;
+
+//Service for getting calendar information
+service CalendarService {
+	// Get All Expiry.
+	rpc GetAllExpiryDates (GetAllRequestMessage)
+		returns (ExpiryDatesGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/GetExpiryDates"
+		};
+	}
+
+	rpc  GetExpiryDates (GetByIdRequestMessage)
+		returns (ExpiryDatesGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/GetExpiryDates/{id}"
+		};
+	}
+
+	rpc GetAllHolidays (GetAllRequestMessage)
+		returns (HolidaysGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/GetHolidays"
+		};
+	}
+
+	rpc GetHolidays (GetByIdRequestMessage)
+		returns (HolidaysGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/GetHolidays/{id}"
+		};
+	}
+
+	rpc GetAllStockCalendars (GetAllRequestMessage)
+		returns (StockCalendarsGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/GetStockCalendars"
+		};
+	}
+
+	rpc GetStockCalendar (GetByIdRequestMessage)
+		returns (StockCalendarGrpcResponse)
+	{
+		option (google.api.http) = {
+			get: "/GetStockCalendars/{id}"
+		};
+	}
+}
+
+message GetAllRequestMessage{
+
+}
+
+message GetByIdRequestMessage{
+	int32 id=1;
+}
+
+
+message ExpiryDatesGrpcMessage{
+	repeated ExpiryDatesGrpc expiry_dates=1;
+}
+
+message StockCalendarsGrpcMessage{
+	repeated StockCalendarGrpc stock_calendars=2;
+}
+
+message HolidaysGrpcMessage{
+	repeated HolidayGrpc holidays=1;
+}
+
+
+message StockCalendarGrpcResponse {
+  oneof stock_calendar {
+    google.protobuf.NullValue null = 1;
+    StockCalendarGrpc stock_calendar_data = 2;
+  }
+}
+
+
+message HolidayGrpc{
+	int32 calendar_id=1;
+	google.protobuf.Timestamp holiday_date = 2;
+}
+
+message ExpiryDatesGrpc{
+	int32 calendar_id=1;
+	google.protobuf.Timestamp future_date = 2;
+	google.protobuf.Timestamp expiry_date =3;
+}
+
+message StockCalendarGrpc{
+	int32 calendar_id=1;
+	string name = 2;
+	google.protobuf.Int32Value correction = 3;
+	google.protobuf.StringValue timezone=4;
+	google.protobuf.Int32Value calendar_type_db=5;
+	repeated ExpiryDatesGrpc future_expiries =6;
+	repeated HolidayGrpc holidays = 7;
+	int32 calendar_type=8;
+}

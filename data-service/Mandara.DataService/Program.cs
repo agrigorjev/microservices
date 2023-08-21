@@ -33,13 +33,13 @@ builder.Services.AddSingleton<IPortfoliosStorage, PortfoliosStorage>();
 builder.Services.AddHostedService<PortfoliosReaderService>();
 
 var certificatePassword = builder.Configuration["ServerCertificatePassword"];
-builder.WebHost.ConfigureKestrel(kestrel =>
-{
-    kestrel.ConfigureHttpsDefaults(https =>
-    {
-        https.ServerCertificate = new X509Certificate2("server-certificate.pfx", certificatePassword);
-    });
-});
+//builder.WebHost.ConfigureKestrel(kestrel =>
+//{
+//    kestrel.ConfigureHttpsDefaults(https =>
+//    {
+//        https.ServerCertificate = new X509Certificate2("server-certificate.pfx", certificatePassword);
+//    });
+//});
 
 
 var app = builder.Build();

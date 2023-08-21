@@ -14,7 +14,7 @@ public static class ServiceCollectionExtension
         services.Configure<DataStoragesSettings>(
             configurationManager.GetSection(DataStoragesSettings.SectionName));
 
-        services.AddSingleton<ICalendarsStorage, CalendarsStorage>();
+       // services.AddSingleton<ICalendarsStorage, CalendarsStorage>();
 
         services.AddDbContext<MandaraEntities>(options => {
             options.UseSqlServer(configurationManager.GetConnectionString("MandaraEntities"));

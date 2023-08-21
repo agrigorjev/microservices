@@ -30,7 +30,7 @@ builder.Services.AddDbContextFactory<MandaraEntities>(options => {
 });
 builder.Services.AddSingleton<ICalendarsStorage, CalendarsStorage>();
 
-builder.Services.AddHostedService<CalendarsReaderService>();
+builder.Services.AddHostedService<CalendarReaderService>();
 
 var certificatePassword = builder.Configuration["ServerCertificatePassword"];
 builder.WebHost.ConfigureKestrel(kestrel =>

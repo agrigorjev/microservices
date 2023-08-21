@@ -4,14 +4,16 @@ using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using Mandara.CalendarsService.Data;
 using Mandara.CalendarsService.Configuration;
+using System.Collections.Generic;
 
 namespace Mandara.CalendarsService.Services;
 
 public class CalendarsStorage : ICalendarsStorage
 {
-    private ConcurrentDictionary<int, Portfolio> Portfolios { get; set; } = new();
+    private ConcurrentDictionary<int, StockCalendar> StockCalendars { get; set; } = new();
+    private ConcurrentDictionary<int, List<CalendarExpiryDate>> CalendarExpiryDates { get; set; } = new();
+    private ConcurrentDictionary<int, List<CalendarHoliday>> CalendarHolidays { get; set; } = new();
 
-    private List<Portfolio> _portfolios = new();
 
     private readonly DataStoragesSettings _serviceSettings;
     private readonly IDbContextFactory<MandaraEntities> _contextFactory;
@@ -23,70 +25,129 @@ public class CalendarsStorage : ICalendarsStorage
         _contextFactory = contextFactory;
     }
 
+    public List<CalendarHoliday> GetCalendarHolidays(int id)
+    {
+
+        if (CalendarHolidays.TryGetValue(id, out List<CalendarHoliday>? data))
+        {
+            if (data != null)
+                return data;
+        }
+
+        return LoadCalendarHoliday(id);
+    }
+
+    public List<CalendarHoliday> GetCalendarHolidays()
+    {
+        return CalendarHolidays.Values.SelectMany(x=>x).ToList();
+    }
+
+    public List<CalendarExpiryDate> GetCalendarExpiryDates(int id)
+    {
+        if (CalendarExpiryDates.TryGetValue(id, out List<CalendarExpiryDate>? data))
+        {
+            if (data != null)
+                return data;
+        }
+
+       return  LoadCalendarExpiryDates(id);
+    }
+
+    public List<CalendarExpiryDate> GetCalendarExpiryDates()
+    {
+        return CalendarExpiryDates.Values.SelectMany(x => x).ToList();
+    }
+
+    public Option<StockCalendar> GetStockCalendar(int id)
+    {
+        if (StockCalendars.TryGetValue(id, out StockCalendar? data))
+        {
+            if (data == null)
+                return Option.None<StockCalendar>();
+
+            return Option.Some(data);
+        }
+
+        StockCalendar dataLoaded = LoadStockCalendar(id);
+
+        return dataLoaded.IsDefault() ? Option.None<StockCalendar>() : Option.Some(dataLoaded);
+    }
+
+    public List<StockCalendar> GetStockCalendars()
+    {
+        return StockCalendars.Values.ToList();
+    }
+
+  
+
     public void Update()
     {
         using (MandaraEntities productsDb = _contextFactory.CreateDbContext())
         {
-            _portfolios = GetPortfolioQuery(productsDb).ToList();
+            StockCalendars = new ConcurrentDictionary<int, StockCalendar>(GetStockCalendarQuery(productsDb).ToDictionary(calendar => calendar.CalendarId));
+            CalendarExpiryDates = new ConcurrentDictionary<int, List<CalendarExpiryDate>>(GetAllExpiryDatesQuery(productsDb).GroupBy(calendar => calendar.CalendarId).ToDictionary(x =>x.Key,x=>x.ToList()));
+            CalendarHolidays = new ConcurrentDictionary<int, List<CalendarHoliday>>(GetAllHolidaysQuery(productsDb).GroupBy(calendar => calendar.CalendarId).ToDictionary(x => x.Key, x => x.ToList()));
         }
 
-        Portfolio? errorBook = _portfolios.FirstOrDefault(portfolio => portfolio.PortfolioId == _serviceSettings.ErrorBookId);
-
-        if (errorBook != null)
-        {
-            errorBook.IsErrorBook = true;
-        }
-
-        Portfolios =
-            new ConcurrentDictionary<int, Portfolio>(_portfolios.ToDictionary(portfolio => portfolio.PortfolioId));
     }
 
-    private static IQueryable<Portfolio> GetPortfolioQuery(MandaraEntities cxt)
+    private StockCalendar LoadStockCalendar(int id)
     {
-        return cxt.Portfolios.Include(x => x.ParentPortfolio).Include(x => x.Portfolios);
-    }
-
-    public Option<Portfolio> GetPortfolio(int portfolioId)
-    {
-        if (Portfolio.NoPortfolio == portfolioId)
+        using (MandaraEntities productsDb = _contextFactory.CreateDbContext())
         {
-            return Option.None<Portfolio>();
+            StockCalendar stockCalendar = GetStockCalendarQuery(productsDb).FirstOrDefault(calendar => calendar.CalendarId == id) ?? StockCalendar.Default;
+            if (!stockCalendar.IsDefault())
+            {
+                StockCalendars.TryAdd(stockCalendar.CalendarId, stockCalendar);
+            }
+            return stockCalendar;
         }
 
-        if (Portfolios.TryGetValue(portfolioId, out Portfolio? portfolio))
+    }
+    private List<CalendarHoliday> LoadCalendarHoliday(int id)
+    {
+        using (MandaraEntities productsDb = _contextFactory.CreateDbContext())
         {
-            if (portfolio == null)
-                return Option.None<Portfolio>();
-
-            return Option.Some(portfolio);
+            List<CalendarHoliday> calendarHoliday = GetAllHolidaysQuery(productsDb).Where(calendar => calendar.CalendarId == id).ToList();
+            if (calendarHoliday.Count>0)
+            {
+                CalendarHolidays.TryAdd(id, calendarHoliday);
+            }
+            return calendarHoliday;
         }
 
-        portfolio = LoadPortfolio(portfolioId);
-
-        return portfolio.IsDefault() ? Option.None<Portfolio>() : Option.Some(portfolio);
     }
-
-    public IList<Portfolio> GetPortfolios()
+    private List<CalendarExpiryDate> LoadCalendarExpiryDates(int id)
     {
-        return _portfolios;
-    }
-
-    private Portfolio LoadPortfolio(int portfolioId)
-    {
-        using var productsDb = _contextFactory.CreateDbContext();
-
-        Portfolio portfolio =
-            GetPortfolioQuery(productsDb).FirstOrDefault(pfolio => pfolio.PortfolioId == portfolioId)
-            ?? Portfolio.Default;
-
-        if (!portfolio.IsDefault())
+        using (MandaraEntities productsDb = _contextFactory.CreateDbContext())
         {
-            if (portfolio.PortfolioId == _serviceSettings.ErrorBookId)
-                portfolio.IsErrorBook = true;
-
-            Portfolios.TryAdd(portfolio.PortfolioId, portfolio);
+            List<CalendarExpiryDate> expiryDates = GetAllExpiryDatesQuery(productsDb).Where(calendar => calendar.CalendarId == id).ToList();
+            if (expiryDates.Count>0)
+            {
+                CalendarExpiryDates.TryAdd(id, expiryDates);
+            }
+            return expiryDates;
         }
 
-        return portfolio;
     }
+
+
+    private static IQueryable<StockCalendar> GetStockCalendarQuery(MandaraEntities cxt)
+    {
+        return cxt.StockCalendars.Include(x => x.Holidays).Include(x => x.FuturesExpiries);
+    }
+
+    private static IQueryable<CalendarHoliday> GetAllHolidaysQuery(MandaraEntities cxt)
+    {
+        return cxt.CalendarHolidays;
+    }
+
+    private static IQueryable<CalendarExpiryDate> GetAllExpiryDatesQuery(MandaraEntities cxt)
+    {
+        return cxt.CalendarExpiryDates;
+    }
+
+    
 }
+
+   

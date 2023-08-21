@@ -1,0 +1,146 @@
+syntax = "proto3";
+
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "Protos/customtypes.proto";
+
+
+option csharp_namespace = "MandaraDemo.GrpcDefinitions";
+
+package products;
+//Service for demo official products
+service ProductAPIService {
+	// Get All Products.
+	rpc GetAllProducts (GetAllRequestMessage)
+		returns (ProductsGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/GetProducts"
+		};
+	}
+
+	rpc  GetProduct (GetByIdRequestMessage)
+		returns (ProductGrpcResponse)
+	{
+		option (google.api.http) = {
+			get: "/GetProducts/{id}"
+		};
+	}
+
+	rpc  GetCurrencyReference (GetAllRequestMessage)
+		returns (CurrencyGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/GetCurrency"
+		};
+	}
+	
+	rpc GetPriceUnitReference (GetAllRequestMessage)
+		returns (PriceUnitGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/GetPriceUnits"
+		};
+	}
+	rpc  GetRegionReference (GetAllRequestMessage)
+		returns (RegionGrpcMessage)
+	{
+		option (google.api.http) = {
+			get: "/GetRegions"
+		};
+	}
+	rpc StreamNotify (GetAllRequestMessage) returns (stream ServiceEventMessage){
+	};
+}
+
+message GetAllRequestMessage
+{
+
+}
+
+message GetByIdRequestMessage{
+	 string id=1;
+}
+
+
+message ProductsGrpcMessage{
+	repeated ProductGrpc products=1;
+}
+
+message ServiceEventMessage{
+	string EventType=1;
+	repeated string EventPayload=2;
+}
+
+message RegionGrpcMessage{
+	repeated RegiontGrpc reference=1;
+}
+message PriceUnitGrpcMessage{
+	repeated PriceUnitGrpc reference=1;
+}
+message CurrencyGrpcMessage{
+	repeated CurrencyGrpc reference=1;
+}
+
+message ProductGrpcResponse {
+  oneof products {
+    google.protobuf.NullValue null = 1;
+    ProductGrpc product = 2;
+  }
+}
+message PriceUnitGrpc{
+	string Id=1;
+	string Name=2;
+    optional customtypes.DecimalValue DefaultPositionFactor=3;
+    bool AllowOnlyMonthlyContractSize=4;
+	string Status=5;
+
+}
+
+message RegiontGrpc{
+	string Id=1;
+	string Name=2;
+	string Status=3;
+}
+
+message CurrencyGrpc{
+	string Id=1;
+	string isoName=2;
+	string Status=3;
+}
+
+message ProductGrpc{
+
+	string id=1;
+	string Name=2;
+	optional google.protobuf.StringValue DisplayName=3;
+	optional google.protobuf.StringValue MappingColumn=4;
+	optional google.protobuf.BoolValue ApplySignVerification=5;
+	optional google.protobuf.BoolValue ApplyFractionPartVerification=6;
+	optional customtypes.DecimalValue Epsilon=7;
+	optional google.protobuf.BoolValue ApplyMissingPointVerification=8;
+	optional customtypes.DecimalValue MissingPointAccuracy=9;
+	optional google.protobuf.StringValue VoiceName=10;
+	optional google.protobuf.BoolValue PublishToUms=11;
+	optional google.protobuf.StringValue NameOnUms=12;
+	optional customtypes.DecimalValue UnitToBarrelConversionFactor=13;
+	optional google.protobuf.Timestamp price_expiration_period=14;
+	optional google.protobuf.Timestamp spread_price_expiration_period=15;
+	optional google.protobuf.Int32Value  desk_id=16;
+	optional google.protobuf.Int32Value  SettlementProductId=17;
+	optional google.protobuf.BoolValue  IsAllowedForManualTradesDb=18;
+	optional google.protobuf.StringValue  CurrencyGuId=19;
+	optional google.protobuf.StringValue  RegionGuId=20;
+	optional google.protobuf.StringValue  UnitGuid=21;
+	optional CurrencyGrpc Currency =22;
+	optional PriceUnitGrpc PriceUnit =23;
+	optional RegiontGrpc Region =24;
+	string Status=25;
+	
+}
+
+
+
+

@@ -1,0 +1,112 @@
+﻿using Mandara.Entities.Trades;
+using System;
+
+namespace Mandara.Entities.TypeMapping
+{
+    public class TradeToTradeView
+    {
+        public static T Convert<T>(TradeCapture trade) where T : TradeView, new()
+        {
+            return new T
+            {
+                Brokerage = trade.Brokerage,
+                BuyBookName = trade.BuyBook != null ? trade.BuyBook.Name : String.Empty,
+                CFICode = trade.CFICode,
+                ClOrdID = trade.ClOrdID,
+                ClearingAccountId = trade.ClearingAccountId,
+                ClearingFirm = trade.ClearingFirm,
+                CreatedBy = trade.CreatedBy,
+                EditCancelReason = trade.EditCancelReason,
+                Exchange = string.IsNullOrEmpty(trade.ExchangeOverride) ? trade.Exchange : trade.ExchangeOverride,
+                ExecID = trade.ExecID,
+                ExecType = trade.ExecType,
+                ExecutingFirm = trade.ExecutingFirm,
+                LegRefID = trade.LegRefID,
+                NumOfCycles = trade.NumOfCycles,
+                NumOfLots = trade.NumOfLots,
+                OrdStatus = trade.OrdStatus,
+                OrderID = trade.OrderID,
+                OrigTradeID = trade.OrigTradeID,
+                OriginationFirm = trade.OriginationFirm,
+                OriginationTrader = trade.OriginationTrader,
+                ParentID = trade.ParentID,
+                Price = trade.Price,
+                Quantity = trade.Quantity,
+                SecurityID = trade.SecurityID,
+                SecurityIDSource = trade.SecurityIDSource,
+                SellBookName = trade.SellBook != null ? trade.SellBook.Name : String.Empty,
+                Side = trade.Side,
+                Symbol = trade.Symbol,
+                TimeStamp = trade.TimeStamp,
+                TradeDate = trade.TradeDate,
+                TradeEndDate = trade.TradeEndDate,
+                Group = trade.GroupId,
+                TradeCaptureId = trade.TradeId,
+                TradeReportID = trade.TradeReportID,
+                TradeReportTransType = trade.TradeReportTransType,
+                TradeStartDate = trade.TradeStartDate,
+                TradeType = trade.TradeType,
+                TransactTime = trade.TransactTime,
+                UtcTransactTime = trade.UtcTransactTime,
+                TotalQty = trade.TotalQty,
+                AveragePx = trade.AveragePx,
+                TrdType = trade.TrdType,
+
+                Clearable = trade.SecurityDefinition.Clearable,
+                EndDate = trade.SecurityDefinition.EndDate,
+                SecurityDefinitionExchange = trade.SecurityDefinition.Exchange,
+                Granularity = trade.SecurityDefinition.Granularity,
+                HubAlias = trade.SecurityDefinition.HubAlias,
+                HubId = trade.SecurityDefinition.HubId,
+                HubName = trade.SecurityDefinition.HubName,
+                ImpliedType = trade.SecurityDefinition.ImpliedType,
+                IncrementPrice = trade.SecurityDefinition.IncrementPrice,
+                IncrementQty = trade.SecurityDefinition.IncrementQty,
+                IncrementStrike = trade.SecurityDefinition.IncrementStrike,
+                LotSize = trade.SecurityDefinition.LotSize,
+                LotSizeMultiplier = trade.SecurityDefinition.LotSizeMultiplier,
+                MaxStrike = trade.SecurityDefinition.MaxStrike,
+                MinStrike = trade.SecurityDefinition.MinStrike,
+                NumOfDecimalPrice = trade.SecurityDefinition.NumOfDecimalPrice,
+                NumOfDecimalQty = trade.SecurityDefinition.NumOfDecimalQty,
+                PriceDenomination = trade.SecurityDefinition.PriceDenomination,
+                PriceUnit = trade.SecurityDefinition.PriceUnit,
+                PrimaryLegSymbol = trade.SecurityDefinition.PrimaryLegSymbol,
+                ProductDescription = trade.SecurityDefinition.ProductDescription,
+                ProductId = trade.SecurityDefinition.ProductId,
+                ProductName = trade.SecurityDefinition.ProductName,
+                SecondaryLegSymbol = trade.SecurityDefinition.SecondaryLegSymbol,
+                SecurityDefinitionId = trade.SecurityDefinition.SecurityDefinitionId,
+                StartDate = trade.SecurityDefinition.StartDate,
+                StripId = trade.SecurityDefinition.StripId,
+                StripName = trade.StripName,
+                TickValue = trade.SecurityDefinition.TickValue,
+                UnderlyingCFICode = trade.SecurityDefinition.UnderlyingCFICode,
+                UnderlyingContractMultiplier = trade.SecurityDefinition.UnderlyingContractMultiplier,
+                UnderlyingMaturityDate = trade.SecurityDefinition.UnderlyingMaturityDate,
+                UnderlyingSecurityDesc = trade.SecurityDefinition.UnderlyingSecurityDesc,
+                UnderlyingSecurityID = trade.SecurityDefinition.UnderlyingSecurityID,
+                UnderlyingSecurityIDSource = trade.SecurityDefinition.UnderlyingSecurityIDSource,
+                UnderlyingSymbol = trade.SecurityDefinition.UnderlyingSymbol,
+                UnderlyingUnitOfMeasure = trade.SecurityDefinition.UnderlyingUnitOfMeasure,
+
+                FeeExchange = -1M * trade.FeeExchange,
+                FeeNfa = -1M * trade.FeeNfa,
+                FeeCommision = -1M * trade.FeeCommission,
+                FeeClearing = -1M * trade.FeeClearing,
+                BlockFee = -1M * trade.FeeBlock,
+                PlattsFee = -1M * trade.FeePlatts,
+                IceSpreadRebate = trade.IceSpreadRebate,
+
+                GmICode = trade.GMICode,
+
+                Portfolio = trade.Portfolio?.ToString() ?? string.Empty,
+                PortfolioId = trade.Portfolio?.PortfolioId ?? 0,
+
+                ExpiryDate = trade.ExpiryDate,
+
+                Currency = trade.GetCurrency(),
+            };
+        }
+    }
+}
