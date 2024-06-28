@@ -370,3 +370,4 @@ calendar-service/*/.vs/
 /calendars-service/Mandara.CalendarsService/obj/Debug/net7.0/Protos/CalendarGrpc.cs
 /calendars-service/Mandara.CalendarsService/obj/Debug/net7.0/Protos/Calendar.cs
 /calendars-service/Mandara.CalendarsService/obj/Debug/net7.0/Mandara.CalendarsService.csproj.AssemblyReference.cache
+/trade-matcher-grpc-service/ROXOSOURCE.ZIP
