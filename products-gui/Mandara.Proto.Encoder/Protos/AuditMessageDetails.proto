@@ -1,9 +1,0 @@
-﻿syntax = "proto3";
-package Mandara.Proto.Encoder.Generated;
-
-message AuditMessageDetails {
-  string Property = 1;
-  string OldValue = 2;
-  string NewValue = 3;
-  repeated AuditMessageDetails Children = 4;
-}
